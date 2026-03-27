@@ -873,7 +873,7 @@
 
   // ── 제출 ──────────────────────────────────────────────
   // ── 구글 폼 필드 ID 매핑 ─────────────────────────────
-  const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSdb_QM6hF15i5ESrR-SVK9jkgoqGAGXupuQSNV8rNn73Vt2ww/formResponse';
+  const FORM_ACTION = 'https://script.google.com/macros/s/AKfycbxJ0MTaWXIw6RCSyAD-vD3Cm6BpsTDVSl6u7B8bhJuo0rcYomG_WSik97ise6bYm1ISYw/exec';
   const ENTRY = {
     name:       'entry.1025188097',
     phone:      'entry.1916976136',
@@ -949,11 +949,26 @@
       await fetch(FORM_ACTION, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString(),
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          name:         name,
+          phone:        phone,
+          email:        email,
+          birth:        birth,
+          address:      address,
+          donationType: donationType,
+          amount:       amount,
+          startMonth:   startMonth,
+          bank:         bank,
+          account:      account,
+          holder:       holder,
+          receipt:      receiptDetail,
+          purposes:     purposes.map(p=>p.replace(/^[^\s]+\s/,'')).join(', '),
+          agreeNews:    agreeNews ? '수신 동의' : '수신 거부'
+        })
       });
     } catch(e) {
-      // no-cors 모드에서는 항상 opaque response — 오류가 아님
+      // no-cors 모드 정상
     }
 
     // 요약 카드 생성
