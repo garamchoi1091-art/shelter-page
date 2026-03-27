@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>군산남자단기청소년쉼터 — 후원하기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark:  #1B4332;
+    --green-mid:   #2D6A4F;
+    --green-soft:  #52B788;
+    --green-pale:  #D8F3DC;
+    --accent:      #F4845F;
+    --warm-white:  #FAFDF9;
+    --text-dark:   #1A2E1F;
+    --text-mid:    #4A6355;
+    --text-light:  #8FA898;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--green-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ── 앱 래퍼 ── */
+  .app {
+    width: 100%;
+    max-width: 420px;
+    height: 100dvh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── 배경 파티클 ── */
+  .bg-circles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bg-circles span {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(82,183,136,0.07);
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    from { transform: translateY(110vh) scale(0.5); opacity:0; }
+    10%  { opacity:1; }
+    90%  { opacity:1; }
+    to   { transform: translateY(-10vh) scale(1.2); opacity:0; }
+  }
+
+  /* ── 슬라이드 공통 ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: all 0.45s cubic-bezier(0.22,1,0.36,1);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ── 상단 진행바 ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--green-soft);
+    transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  /* ── 카드 레이아웃 ── */
+  .card-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 24px 24px;
+  }
+
+  /* ── 이모지 아이콘 ── */
+  .slide-emoji {
+    font-size: 48px;
+    margin-bottom: 20px;
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  }
+
+  /* ── 텍스트 ── */
+  .slide-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--green-soft);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .slide-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(22px, 6vw, 28px);
+    color: #fff;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    word-break: keep-all;
+  }
+  .slide-title em {
+    font-style: normal;
+    color: var(--green-soft);
+  }
+  .slide-body {
+    font-size: 15px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.85;
+    font-weight: 300;
+    word-break: keep-all;
+  }
+
+  /* ── 통계 카드 ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(82,183,136,0.2);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--green-soft);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-num sub {
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  /* ── 인용 블록 ── */
+  .quote-block {
+    background: rgba(82,183,136,0.08);
+    border-left: 3px solid var(--green-soft);
+    border-radius: 0 12px 12px 0;
+    padding: 18px 20px;
+    margin-top: 24px;
+  }
+  .quote-text {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.9;
+    margin-bottom: 10px;
+  }
+  .quote-credit {
+    font-size: 11px;
+    color: var(--green-soft);
+    letter-spacing: 1px;
+  }
+
+  /* ── 후원 옵션 카드 ── */
+  .option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .option-card {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(82,183,136,0.2);
+    border-radius: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .option-card:active, .option-card.selected {
+    background: rgba(82,183,136,0.15);
+    border-color: var(--green-soft);
+    transform: scale(0.98);
+  }
+  .option-icon {
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .option-info { flex: 1; }
+  .option-amount {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+  .option-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+  .option-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .option-card.selected .option-check {
+    background: var(--green-soft);
+    border-color: var(--green-soft);
+  }
+  .option-card.selected .option-check::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* ── 하단 버튼 영역 ── */
+  .btn-area {
+    padding: 16px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn-main {
+    width: 100%;
+    padding: 17px;
+    background: var(--green-soft);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 8px 24px rgba(82,183,136,0.35);
+    letter-spacing: 0.3px;
+  }
+  .btn-main:active { transform: scale(0.97); }
+  .btn-sub {
+    width: 100%;
+    padding: 13px;
+    background: transparent;
+    color: rgba(255,255,255,0.45);
+    border: none;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .btn-sub:active { color: rgba(255,255,255,0.7); }
+
+  /* ── 완료 슬라이드 ── */
+  .finish-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 28px;
+    text-align: center;
+  }
+  .finish-circle {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-mid), var(--green-soft));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 28px;
+    box-shadow: 0 16px 40px rgba(82,183,136,0.4);
+    animation: popIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity:0; }
+    to   { transform: scale(1);   opacity:1; }
+  }
+  .finish-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+  .finish-body {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.9;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+  .contact-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(82,183,136,0.25);
+    border-radius: 16px;
+    padding: 20px 24px;
+    width: 100%;
+  }
+  .contact-label {
+    font-size: 11px;
+    color: var(--green-soft);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .contact-number {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 24px;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+  .contact-hours {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+  }
+
+  /* ── 공유 버튼 ── */
+  .share-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 15px;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    margin-top: 12px;
+  }
+  .share-btn:active {
+    background: rgba(255,255,255,0.12);
+    transform: scale(0.98);
+  }
+
+  /* ── 점 네비 ── */
+  .dot-nav {
+    position: fixed;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.3s;
+  }
+  .dot.active {
+    background: var(--green-soft);
+    height: 18px;
+  }
+
+  /* ── 뒤로가기 ── */
+  .back-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    opacity: 0;
+  }
+  .back-btn.visible { opacity: 1; }
+
+  /* ── 페이지 카운트 ── */
+  .page-count {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    z-index: 100;
+    letter-spacing: 1px;
+  }
+
+  /* ── 후원 링크 버튼 ── */
+  .form-link-btn {
+    display: block;
+    width: 100%;
+    padding: 17px;
+    background: linear-gradient(135deg, var(--green-mid), var(--green-soft));
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(82,183,136,0.4);
+    transition: all 0.25s;
+    letter-spacing: 0.3px;
+    margin-bottom: 10px;
+  }
+  .form-link-btn:active { transform: scale(0.97); }
+
+  /* ── 스크롤 힌트 ── */
+  .scroll-hint {
+    text-align: center;
+    color: rgba(255,255,255,0.25);
+    font-size: 11px;
+    padding-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  /* 옵션 목록 스크롤 */
+  .option-list-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 24px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .option-list-wrap::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<!-- 배경 파티클 -->
+<div class="bg-circles" id="bgCircles"></div>
+
+<!-- 진행바 -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- 뒤로가기 -->
+<button class="back-btn" id="backBtn" onclick="prevSlide()">‹</button>
+
+<!-- 페이지 카운트 -->
+<div class="page-count" id="pageCount"></div>
+
+<!-- 점 네비 -->
+<div class="dot-nav" id="dotNav"></div>
+
+<div class="app" id="app">
+
+  <!-- ══ 슬라이드 0: 인트로 ══ -->
+  <div class="slide active" id="slide-0">
+    <div class="card-wrap">
+      <span class="slide-emoji">🏠</span>
+      <div class="slide-tag">군산남자단기청소년쉼터</div>
+      <h1 class="slide-title">갈 곳 없는 아이에게<br><em>오늘 밤을</em><br>선물해주세요</h1>
+      <p class="slide-body">집을 떠난 청소년들이 안전하게 머물며 다시 일어설 수 있도록, 우리 쉼터가 365일 곁에 있습니다.</p>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="nextSlide()">우리 쉼터 알아보기 →</button>
+      <p class="scroll-hint">스와이프하거나 버튼을 눌러주세요</p>
+    </div>
+  </div>
+
+  <!-- ══ 슬라이드 1: 현황 ══ -->
+  <div class="slide" id="slide-1">
+    <div class="card-wrap">
+      <span class="slide-emoji">📊</span>
+      <div class="slide-tag">쉼터 현황</div>
+      <h2 class="slide-title">지금 이 순간도<br><em>위기청소년들이</em><br>쉼터를 이용하고 있습니다</h2>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-num">30<sub>여명</sub></div>
+          <div class="stat-label">1년간 쉼터를 거쳐가는<br>위기 청소년</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">365<sub>일</sub></div>
+          <div class="stat-label">연중무휴<br>운영</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">24<sub>시간</sub></div>
+          <div class="stat-label">상시<br>보호 체계</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">1<sub>만원</sub></div>
+          <div class="stat-label">하루 한 끼<br>지원 비용</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="nextSlide()">후원이 필요한 이유 →</button>
+      <button class="btn-sub" onclick="prevSlide()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 슬라이드 2: 왜 후원이 필요한가 ══ -->
+  <div class="slide" id="slide-2">
+    <div class="card-wrap">
+      <span class="slide-emoji">💡</span>
+      <div class="slide-tag">후원이 필요한 이유</div>
+      <h2 class="slide-title">국가 보조금만으론<br><em>채울 수 없는</em><br>것들이 있어요</h2>
+      <p class="slide-body">심리치료, 생일선물, 진로상담, 자립 초기 비용… 아이들에게 꼭 필요하지만 보조금 항목에 없는 것들입니다.<br><br>여러분의 후원이 그 빈자리를 채웁니다.</p>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="nextSlide()">아이들의 이야기 →</button>
+      <button class="btn-sub" onclick="prevSlide()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 슬라이드 3: 스토리 ══ -->
+  <div class="slide" id="slide-3">
+    <div class="card-wrap">
+      <span class="slide-emoji">💬</span>
+      <div class="slide-tag">변화의 이야기</div>
+      <h2 class="slide-title">후원이 만든<br><em>한 아이의</em> 변화</h2>
+      <div class="quote-block">
+        <p class="quote-text">"여기 오기 전엔 내일이 없었어요. 선생님들이 제 이름을 불러줄 때마다 내가 사람이구나, 싶었어요."</p>
+        <p class="quote-credit">— 퇴소 후 자립 중인 A (19세, 익명)</p>
+      </div>
+      <p class="slide-body" style="margin-top:20px;">이름을 불러주는 것. 밥 한 끼를 함께 먹는 것. 작은 관심이 한 아이의 삶을 바꿉니다.</p>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="nextSlide()">후원 방법 보기 →</button>
+      <button class="btn-sub" onclick="prevSlide()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 슬라이드 4: 후원 방식 선택 ══ -->
+  <div class="slide" id="slide-4">
+    <div class="card-wrap" style="padding-bottom:12px;">
+      <span class="slide-emoji">💚</span>
+      <div class="slide-tag">후원 방식 선택</div>
+      <h2 class="slide-title">어떻게<br>함께하실 건가요?</h2>
+    </div>
+    <div class="option-list-wrap">
+      <div class="option-list">
+        <div class="option-card" onclick="selectOption(this, 'monthly1')">
+          <div class="option-icon">🌱</div>
+          <div class="option-info">
+            <div class="option-amount">월 1만원</div>
+            <div class="option-desc">하루 한 끼 식사 지원<br>가장 작은 시작</div>
+          </div>
+          <div class="option-check"></div>
+        </div>
+        <div class="option-card" onclick="selectOption(this, 'monthly3')">
+          <div class="option-icon">💚</div>
+          <div class="option-info">
+            <div class="option-amount">월 3만원</div>
+            <div class="option-desc">한 아이의 한 달 생활 지원<br>가장 많이 선택하는 금액</div>
+          </div>
+          <div class="option-check"></div>
+        </div>
+        <div class="option-card" onclick="selectOption(this, 'monthly5')">
+          <div class="option-icon">🌳</div>
+          <div class="option-info">
+            <div class="option-amount">월 5만원</div>
+            <div class="option-desc">심리상담 프로그램 지원<br>마음까지 돌봐드려요</div>
+          </div>
+          <div class="option-check"></div>
+        </div>
+        <div class="option-card" onclick="selectOption(this, 'once')">
+          <div class="option-icon">🎁</div>
+          <div class="option-info">
+            <div class="option-amount">일시 후원</div>
+            <div class="option-desc">금액 관계없이<br>마음이 닿는 만큼</div>
+          </div>
+          <div class="option-check"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-area" style="padding-top:16px;">
+      <button class="btn-main" id="selectBtn" onclick="nextSlide()" style="opacity:0.5;" disabled>선택 후 계속 →</button>
+      <button class="btn-sub" onclick="prevSlide()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 슬라이드 5: 신뢰/투명성 ══ -->
+  <div class="slide" id="slide-5">
+    <div class="card-wrap">
+      <span class="slide-emoji">🔒</span>
+      <div class="slide-tag">신뢰와 투명성</div>
+      <h2 class="slide-title">후원금은<br><em>이렇게</em> 사용됩니다</h2>
+      <p class="slide-body">모든 후원금은 용도에 맞게 사용되고 매년 회계가 공개됩니다.</p>
+      <div class="stat-grid" style="margin-top:20px;">
+        <div class="stat-card">
+          <div style="font-size:24px;margin-bottom:8px;">📋</div>
+          <div class="stat-label">연간 회계<br>공시</div>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:24px;margin-bottom:8px;">🧾</div>
+          <div class="stat-label">세금공제<br>영수증 발급</div>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:24px;margin-bottom:8px;">📱</div>
+          <div class="stat-label">정기<br>소식 발송</div>
+        </div>
+        <div class="stat-card">
+          <div style="font-size:24px;margin-bottom:8px;">🤝</div>
+          <div class="stat-label">후원자<br>감사 행사</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="nextSlide()">후원 신청하기 →</button>
+      <button class="btn-sub" onclick="prevSlide()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 슬라이드 6: 완료/CTA ══ -->
+  <div class="slide" id="slide-6">
+    <div class="finish-wrap">
+      <div class="finish-circle">💚</div>
+      <h2 class="finish-title">함께해 주셔서<br>감사합니다</h2>
+      <p class="finish-body">아래 버튼을 눌러 후원 약정서를 작성해 주세요.<br>담당자가 3일 이내 연락드리겠습니다.<br><br>후원은 언제든 변경·해지 가능합니다.</p>
+
+      <a class="form-link-btn" href="https://docs.google.com/forms/d/194-MVern9Fy_B-99IcOExrkxMUxdh90JLE54D1glqls/viewform" target="_blank">
+        📝 후원 약정서 작성하기
+      </a>
+
+      <div class="contact-box">
+        <div class="contact-label">문의 전화</div>
+        <div class="contact-number">063-471-1091</div>
+        <div class="contact-hours">평일 09:00 – 18:00</div>
+      </div>
+
+      <button class="share-btn" onclick="sharePage()">
+        📤 이 페이지 공유하기
+      </button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+  const TOTAL = 7;
+  let current = 0;
+
+  // ── 배경 파티클 ──────────────────────────────────
+  const bg = document.getElementById('bgCircles');
+  for (let i = 0; i < 8; i++) {
+    const s = document.createElement('span');
+    const size = 40 + Math.random() * 80;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      animation-duration:${12+Math.random()*16}s;
+      animation-delay:${Math.random()*12}s;
+    `;
+    bg.appendChild(s);
+  }
+
+  // ── 점 네비 생성 ──────────────────────────────────
+  const dotNav = document.getElementById('dotNav');
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotNav.appendChild(d);
+  }
+
+  // ── UI 업데이트 ──────────────────────────────────
+  function updateUI() {
+    document.getElementById('progressFill').style.width = ((current+1)/TOTAL*100) + '%';
+    document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===current));
+    const back = document.getElementById('backBtn');
+    back.classList.toggle('visible', current > 0);
+    const pc = document.getElementById('pageCount');
+    pc.textContent = current < TOTAL-1 ? `${current+1} / ${TOTAL}` : '';
+  }
+
+  // ── 슬라이드 이동 ──────────────────────────────────
+  function goTo(next) {
+    if (next < 0 || next >= TOTAL || next === current) return;
+    const cur = document.getElementById('slide-' + current);
+    const nxt = document.getElementById('slide-' + next);
+    cur.classList.add('exit');
+    cur.classList.remove('active');
+    setTimeout(() => cur.classList.remove('exit'), 450);
+    nxt.classList.add('active');
+    current = next;
+    updateUI();
+  }
+  function nextSlide() { goTo(current + 1); }
+  function prevSlide() { goTo(current - 1); }
+
+  // ── 스와이프 ──────────────────────────────────────
+  let startX = 0, startY = 0;
+  document.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) nextSlide(); else prevSlide();
+    }
+  }, { passive: true });
+
+  // ── 후원 옵션 선택 ──────────────────────────────────
+  function selectOption(el, key) {
+    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const btn = document.getElementById('selectBtn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+
+  // ── 공유 ──────────────────────────────────────────
+  function sharePage() {
+    const url = window.location.href;
+    const text = '💚 군산남자단기청소년쉼터 후원 안내\n갈 곳 없는 청소년들과 함께해 주세요.\n\n';
+    if (navigator.share) {
+      navigator.share({ title: '청소년쉼터 후원하기', text, url });
+    } else {
+      navigator.clipboard.writeText(text + url).then(() => {
+        alert('링크가 복사되었습니다! 카카오톡이나 문자로 공유해 주세요 💚');
+      });
+    }
+  }
+
+  // ── 초기화 ──────────────────────────────────────────
+  updateUI();
+</script>
+</body>
+</html>
