@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스트레스 지수 검사</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08080f;--bg2:#111118;--bg3:#18181f;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.15);--text:#f0eef8;--text2:#9490ae;--text3:#4e4c62;--r:13px;--red:#ef4444;--orange:#f97316;--yellow:#eab308;--green:#22c55e}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 40%,rgba(239,68,68,0.06) 0%,transparent 55%),radial-gradient(ellipse at 80% 70%,rgba(249,115,22,0.05) 0%,transparent 55%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(239,68,68,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(239,68,68,0.025) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0}
+.screen{display:none;position:relative;z-index:1}
+.screen.active{display:flex;flex-direction:column;min-height:100vh}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── INTRO ── */
+#intro{align-items:center;justify-content:center;padding:2.5rem 1.5rem}
+.intro-inner{max-width:500px;width:100%;animation:fadeUp 0.8s ease both;text-align:center}
+.stress-emblem{width:88px;height:88px;border-radius:50%;margin:0 auto 1.5rem;background:linear-gradient(135deg,#ef4444,#f97316);display:flex;align-items:center;justify-content:center;box-shadow:0 0 36px rgba(239,68,68,0.35);font-size:36px}
+.intro-heading{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:700;line-height:1.3;margin-bottom:.5rem}
+.intro-heading em{font-style:normal;background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.intro-sub{font-size:14px;color:var(--text2);margin-bottom:1.5rem;line-height:1.75}
+.area-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.75rem}
+.area-chip{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;text-align:left}
+.area-chip-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+.area-chip-name{font-size:13px;font-weight:500;color:var(--text)}
+.area-chip-desc{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4}
+.info-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:1.75rem;text-align:left}
+.info-card p{font-size:13px;color:var(--text2);line-height:1.85}
+.info-card strong{color:var(--text);font-weight:500}
+.start-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 42px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 36px rgba(239,68,68,0.3);transition:transform .2s,box-shadow .2s}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 0 52px rgba(239,68,68,0.45)}
+
+/* ── QUIZ ── */
+.quiz-header{position:sticky;top:0;z-index:10;background:rgba(8,8,15,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:1rem 1.5rem}
+.quiz-header-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.q-area-badge{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.q-counter{font-size:13px;color:var(--text3);margin-left:auto;white-space:nowrap}
+.prog-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#ef4444,#f97316);transition:width .4s ease;width:0%}
+.quiz-body{flex:1;padding:1.5rem 1.5rem 0;max-width:640px;margin:0 auto;width:100%}
+.q-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:.85rem;animation:cardIn .3s ease both}
+.q-num{font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:.06em}
+.q-text{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:1.1rem}
+.scale-row{display:flex;gap:5px}
+.scale-btn{flex:1;padding:10px 3px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s;text-align:center;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px}
+.scale-btn .sn{font-size:15px;font-weight:700;color:var(--text2)}
+.scale-btn .sl{font-size:9px;white-space:pre-line;line-height:1.3}
+.scale-btn:hover{border-color:var(--border2);color:var(--text)}
+.scale-btn.sel{border-width:2px;background:rgba(239,68,68,0.13);border-color:#ef4444;color:#ef4444}
+.scale-btn.sel .sn{color:#ef4444}
+.submit-wrap{padding:1.5rem;max-width:640px;margin:0 auto;width:100%}
+.submit-btn{width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 28px rgba(239,68,68,.3);transition:transform .2s,box-shadow .2s;display:none}
+.submit-btn:hover{transform:translateY(-2px)}
+
+/* ── RESULT (form only) ── */
+#result-screen{padding:1.5rem;align-items:center}
+.result-inner{max-width:480px;width:100%;animation:fadeUp .6s ease both}
+
+/* ── REPORT OVERLAY ── */
+#reportOverlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.9);overflow-y:auto;padding:2rem 1rem}
+#reportOverlay.open{display:block}
+.rp-sheet{background:#fff;color:#1a1a1a;width:100%;max-width:700px;margin:0 auto;border-radius:8px;padding:42px 52px;font-family:'Noto Sans KR',sans-serif;position:relative}
+.rp-close{position:absolute;top:16px;right:20px;background:none;border:none;cursor:pointer;font-size:22px;color:#999}
+.rp-close:hover{color:#333}
+
+.home-link{display:block;text-align:center;margin-top:1.5rem;font-size:13px;color:var(--text3);text-decoration:none;transition:color .15s}
+.home-link:hover{color:var(--text2)}
+
+@media print{body *{visibility:hidden}#reportOverlay,#reportOverlay *{visibility:visible}#reportOverlay{position:static;background:none;padding:0;overflow:visible}.rp-sheet{box-shadow:none;border-radius:0;max-width:100%;padding:18mm 16mm;page-break-inside:avoid}.rp-close{display:none!important}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+@media(max-width:480px){.rp-sheet{padding:26px 20px}.scale-btn .sl{display:none}.area-chips{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="intro-inner">
+    <div class="stress-emblem">🌡️</div>
+    <div class="intro-heading">일상 스트레스<br><em>지수 검사</em></div>
+    <div class="intro-sub">4가지 영역에서 나의 스트레스 수준을 측정합니다</div>
+    <div class="area-chips">
+      <div class="area-chip"><span class="area-chip-dot" style="background:#ef4444"></span><span class="area-chip-name">신체</span><div class="area-chip-desc">피로·수면·건강 반응</div></div>
+      <div class="area-chip"><span class="area-chip-dot" style="background:#f97316"></span><span class="area-chip-name">감정·심리</span><div class="area-chip-desc">불안·우울·감정 조절</div></div>
+      <div class="area-chip"><span class="area-chip-dot" style="background:#eab308"></span><span class="area-chip-name">관계·환경</span><div class="area-chip-desc">대인관계·갈등·고립</div></div>
+      <div class="area-chip"><span class="area-chip-dot" style="background:#22c55e"></span><span class="area-chip-name">업무·역할</span><div class="area-chip-desc">과부하·통제감·성취</div></div>
+    </div>
+    <div class="info-card"><p><strong>20문항</strong>으로 영역별 스트레스 지수를 파악합니다.<br><br>각 문항을 읽고 <strong>최근 1개월 동안</strong> 자신의 상태와 얼마나 일치하는지 1~5점으로 평가해 주세요.<br><br>소요시간: <strong>약 3~4분</strong></p></div>
+    <button class="start-btn" onclick="startQuiz()">검사 시작하기 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-header">
+    <div class="quiz-header-inner">
+      <span class="q-area-badge" id="areaBadge">신체</span>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <span class="q-counter" id="qCounter">0 / 20</span>
+    </div>
+  </div>
+  <div class="quiz-body" id="quizBody"></div>
+  <div class="submit-wrap"><button class="submit-btn" id="submitBtn" onclick="showResult()">결과 확인하기 →</button></div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen" class="screen">
+  <div class="result-inner" id="resultInner"></div>
+</div>
+
+<!-- REPORT -->
+<div id="reportOverlay">
+  <div class="rp-sheet">
+    <button class="rp-close" onclick="closeReport()">✕</button>
+    <div id="reportContent"></div>
+  </div>
+</div>
+
+<script>
+/* ══ 20문항: 신체5 / 감정5 / 관계5 / 업무5 ══ */
+const Qs=[
+  /* 신체 */
+  {a:'신체',c:'#ef4444',q:'이유 없이 몸이 무겁거나 피로감이 지속된다.'},
+  {a:'신체',c:'#ef4444',q:'수면의 질이 나빠졌거나 잠들기 어렵다.'},
+  {a:'신체',c:'#ef4444',q:'두통, 소화불량, 어깨결림 등 신체 증상이 자주 나타난다.'},
+  {a:'신체',c:'#ef4444',q:'식욕이 줄거나 반대로 과식하는 일이 잦아졌다.'},
+  {a:'신체',c:'#ef4444',q:'쉬어도 피로가 잘 풀리지 않는다.'},
+  /* 감정 */
+  {a:'감정·심리',c:'#f97316',q:'별것 아닌 일에도 쉽게 짜증이 나거나 감정이 폭발한다.'},
+  {a:'감정·심리',c:'#f97316',q:'미래에 대한 불안이나 걱정이 머릿속을 자주 맴돈다.'},
+  {a:'감정·심리',c:'#f97316',q:'무기력하거나 아무것도 하고 싶지 않은 날이 많다.'},
+  {a:'감정·심리',c:'#f97316',q:'집중력이 떨어지고 멍하게 있는 시간이 길어졌다.'},
+  {a:'감정·심리',c:'#f97316',q:'기쁨이나 즐거움을 예전보다 덜 느낀다.'},
+  /* 관계 */
+  {a:'관계·환경',c:'#eab308',q:'사람을 만나는 것이 부담스럽거나 피하고 싶다.'},
+  {a:'관계·환경',c:'#eab308',q:'가족이나 주변 사람들과의 갈등이 늘었다.'},
+  {a:'관계·환경',c:'#eab308',q:'나의 고민을 편하게 털어놓을 사람이 없다고 느낀다.'},
+  {a:'관계·환경',c:'#eab308',q:'경제적 걱정이나 환경 변화가 큰 부담이 된다.'},
+  {a:'관계·환경',c:'#eab308',q:'혼자라는 느낌이나 외로움을 자주 경험한다.'},
+  /* 업무 */
+  {a:'업무·역할',c:'#22c55e',q:'해야 할 일이 너무 많아 감당하기 어렵다는 느낌이 든다.'},
+  {a:'업무·역할',c:'#22c55e',q:'일이나 역할에 대한 통제감을 잃은 것 같다.'},
+  {a:'업무·역할',c:'#22c55e',q:'실수할까 봐, 또는 평가받는 것이 두렵다.'},
+  {a:'업무·역할',c:'#22c55e',q:'노력에 비해 인정이나 보람을 느끼지 못한다.'},
+  {a:'업무·역할',c:'#22c55e',q:'일이 끝난 뒤에도 머릿속에서 일 생각이 떠나지 않는다.'},
+];
+
+const AREAS=['신체','감정·심리','관계·환경','업무·역할'];
+const AREA_COLORS={'신체':'#ef4444','감정·심리':'#f97316','관계·환경':'#eab308','업무·역할':'#22c55e'};
+const SL=['전혀\n아님','가끔\n그럼','보통','자주\n그럼','항상\n그럼'];
+const ans={};
+
+function startQuiz(){show('quiz-screen');renderQ();}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+function renderQ(){
+  const body=document.getElementById('quizBody');body.innerHTML='';
+  let lastArea='';
+  Qs.forEach((q,i)=>{
+    if(q.a!==lastArea){
+      lastArea=q.a;
+      const badge=document.getElementById('areaBadge');
+      if(badge){badge.textContent=q.a;badge.style.background=q.c+'22';badge.style.color=q.c;badge.style.border='1px solid '+q.c+'44';}
+    }
+    const card=document.createElement('div');
+    card.className='q-card';card.style.animationDelay=(i*.025)+'s';
+    const s=ans[i];
+    card.innerHTML=`
+      <div class="q-num" style="color:${q.c}aa">${q.a} · Q${i+1}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="scale-row">${[1,2,3,4,5].map(v=>`
+        <button class="scale-btn${s===v?' sel':''}"
+          style="${s===v?`background:${q.c}22;border-color:${q.c};color:${q.c}`:''}"
+          onclick="pick(${i},${v},this,'${q.c}')">
+          <span class="sn">${v}</span><span class="sl">${SL[v-1]}</span>
+        </button>`).join('')}</div>`;
+    body.appendChild(card);
+  });
+}
+
+function pick(i,v,btn,color){
+  ans[i]=v;
+  btn.closest('.q-card').querySelectorAll('.scale-btn').forEach((b,bi)=>{
+    const is=(bi+1)===v;b.className='scale-btn'+(is?' sel':'');
+    b.style=is?`background:${color}22;border-color:${color};color:${color}`:'';
+  });
+  const n=Object.keys(ans).length;
+  document.getElementById('progFill').style.width=(n/20*100)+'%';
+  document.getElementById('qCounter').textContent=n+' / 20';
+  // update badge to current area
+  const badge=document.getElementById('areaBadge');
+  if(badge){badge.textContent=Qs[i].a;badge.style.background=Qs[i].c+'22';badge.style.color=Qs[i].c;badge.style.border='1px solid '+Qs[i].c+'44';}
+  document.getElementById('submitBtn').style.display=n===20?'block':'none';
+}
+
+function calcScores(){
+  const sc={};AREAS.forEach(a=>sc[a]=0);
+  const cnt={};AREAS.forEach(a=>cnt[a]=0);
+  Qs.forEach((q,i)=>{if(ans[i]!==undefined){sc[q.a]+=ans[i];cnt[q.a]++;}});
+  const pct={};AREAS.forEach(a=>{pct[a]=cnt[a]?Math.round(sc[a]/cnt[a]/5*100):0;});
+  const total=Math.round(AREAS.reduce((s,a)=>s+pct[a],0)/AREAS.length);
+  return {pct,total};
+}
+
+function getLevel(score){
+  if(score<=30) return {label:'낮음',color:'#22c55e',desc:'현재 스트레스 수준이 낮고 심신이 안정된 상태입니다.'};
+  if(score<=55) return {label:'보통',color:'#eab308',desc:'일상적인 수준의 스트레스가 있습니다. 자기 관리를 유지하세요.'};
+  if(score<=75) return {label:'높음',color:'#f97316',desc:'스트레스가 상당한 수준입니다. 의식적인 이완과 회복이 필요합니다.'};
+  return {label:'매우 높음',color:'#ef4444',desc:'스트레스가 매우 높은 상태입니다. 전문적인 도움을 받아보시길 권장합니다.'};
+}
+
+function showResult(){
+  const {pct,total}=calcScores();
+  const lv=getLevel(total);
+  window._stressResult={pct,total};
+
+  document.getElementById('resultInner').innerHTML=`
+    <div style="animation:fadeUp 0.6s ease both">
+      <div style="text-align:center;margin-bottom:2rem">
+        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#f97316);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 0 32px rgba(239,68,68,0.4)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div style="font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px">검사가 완료되었습니다!</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.75">이름과 전화번호를 입력하시면<br>전문가가 결과를 분석하여 직접 연락드립니다.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem">
+        <div style="margin-bottom:1rem">
+          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">이름 *</label>
+          <input id="inputName" type="text" placeholder="홍길동" maxlength="20"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            onfocus="this.style.borderColor='rgba(239,68,68,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
+        </div>
+        <div style="margin-bottom:1.25rem">
+          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">전화번호 *</label>
+          <input id="inputPhone" type="tel" placeholder="010-0000-0000" maxlength="20"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            onfocus="this.style.borderColor='rgba(239,68,68,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
+        </div>
+        <!-- 개인정보 동의 -->
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem">
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.04em">개인정보 수집 및 이용 동의</div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.8;margin-bottom:10px">
+            · <b style="color:var(--text2)">수집 항목:</b> 이름, 전화번호<br>
+            · <b style="color:var(--text2)">수집 목적:</b> 스트레스 검사 결과 분석 및 전문가 상담 연락<br>
+            · <b style="color:var(--text2)">보유 기간:</b> 상담 완료 후 즉시 파기<br>
+            · <b style="color:var(--text2)">제3자 제공:</b> 없음<br>
+            · 위 정보는 결과 발송 및 상담 목적 외에 사용되지 않습니다.
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+            <input type="checkbox" id="privacyCheck" style="width:16px;height:16px;accent-color:#ef4444;cursor:pointer;flex-shrink:0">
+            <span style="font-size:12px;color:var(--text2)">개인정보 수집 및 이용에 <b style="color:var(--text)">동의합니다</b> <span style="color:#f43f5e">*</span></span>
+          </label>
+        </div>
+        <button id="sendBtn" onclick="sendEmail()"
+          style="width:100%;padding:13px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(239,68,68,0.3);transition:transform 0.2s"
+          onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+          📧 결과 분석 요청하기
+        </button>
+        <div id="sendMsg" style="display:none;text-align:center;margin-top:1rem;font-size:13px;line-height:1.7"></div>
+      </div>
+      <div style="text-align:center;margin-top:1.5rem">
+        <button onclick="restart()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit">← 처음으로 돌아가기</button>
+      </div>
+    </div>
+  `;
+  show('result-screen');
+}
+
+/* ══ 레이더 차트 SVG (이메일용 인라인 SVG를 base64로 → 대신 텍스트 바 그래프로 대체) ══ */
+function buildBarRows(pct){
+  return AREAS.map(a=>`
+    <tr>
+      <td style="font-size:12px;color:#555;padding:5px 8px 5px 0;width:90px;white-space:nowrap">${a}</td>
+      <td style="padding:5px 8px">
+        <div style="background:#e5e7eb;border-radius:4px;height:12px;width:220px">
+          <div style="background:${AREA_COLORS[a]};height:12px;border-radius:4px;width:${pct[a]}%"></div>
+        </div>
+      </td>
+      <td style="font-size:12px;font-weight:700;color:${AREA_COLORS[a]};padding:5px 0;width:40px;text-align:right">${pct[a]}%</td>
+    </tr>`).join('');
+}
+
+const EJS_SERVICE='service_gdmifpq',EJS_TEMPLATE='template_7xgkqur';
+
+function sendEmail(){
+  const name=document.getElementById('inputName').value.trim();
+  const phone=document.getElementById('inputPhone').value.trim();
+  const privacy=document.getElementById('privacyCheck').checked;
+  if(!name){document.getElementById('inputName').focus();return;}
+  if(!phone){document.getElementById('inputPhone').focus();return;}
+  if(!privacy){
+    const cb=document.getElementById('privacyCheck');
+    cb.closest('label').style.color='#f43f5e';
+    setTimeout(()=>cb.closest('label').style.color='',2000);return;
+  }
+
+  const {pct,total}=window._stressResult||{pct:{},total:0};
+  const lv=getLevel(total);
+  const now=new Date();
+  const today=now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+  const time=now.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+
+  /* 영역별 코멘트 */
+  const areaComment=a=>{
+    const s=pct[a]||0;
+    if(s<=30) return `${a} 영역 스트레스는 낮은 편입니다.`;
+    if(s<=55) return `${a} 영역에서 보통 수준의 스트레스가 관찰됩니다.`;
+    if(s<=75) return `${a} 영역의 스트레스가 높습니다. 집중적인 관리가 필요합니다.`;
+    return `${a} 영역의 스트레스가 매우 높습니다. 전문적 지원이 권장됩니다.`;
+  };
+
+  const html=`
+<div style="font-family:Arial,sans-serif;max-width:660px;margin:0 auto;padding:0;background:#fff;color:#1a1a1a">
+
+  <!-- 응시자 정보 -->
+  <div style="background:#fff5f5;border-left:4px solid #ef4444;border-radius:8px;padding:16px 20px;margin-bottom:24px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ef4444;margin-bottom:8px">응시자 정보</div>
+    <table style="border-collapse:collapse;width:100%">
+      <tr><td style="font-size:13px;color:#555;padding:3px 0;width:80px">이름</td><td style="font-size:14px;font-weight:700;color:#1a1a1a;padding:3px 0">${name}</td></tr>
+      <tr><td style="font-size:13px;color:#555;padding:3px 0">전화번호</td><td style="font-size:14px;font-weight:700;color:#1a1a1a;padding:3px 0">${phone}</td></tr>
+      <tr><td style="font-size:13px;color:#555;padding:3px 0">검사일시</td><td style="font-size:13px;color:#666;padding:3px 0">${today} ${time}</td></tr>
+      <tr><td style="font-size:13px;color:#555;padding:3px 0">검사 종류</td><td style="font-size:13px;color:#666;padding:3px 0">일상 스트레스 지수 검사 (20문항)</td></tr>
+    </table>
+  </div>
+
+  <!-- 헤더 -->
+  <table style="border-collapse:collapse;width:100%;border-bottom:2px solid #1a1a1a;margin-bottom:20px">
+    <tr>
+      <td style="padding-bottom:12px">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#aaa;margin-bottom:2px">일상 스트레스 지수 해석지</div>
+        <div style="font-size:16px;font-weight:700">Stress Index Report</div>
+      </td>
+      <td style="padding-bottom:12px;text-align:right;font-size:11px;color:#bbb;vertical-align:bottom">${today}</td>
+    </tr>
+  </table>
+
+  <!-- 종합 점수 -->
+  <table style="border-collapse:collapse;width:100%;margin-bottom:22px">
+    <tr>
+      <td style="width:110px;vertical-align:middle;padding-right:16px;text-align:center">
+        <div style="width:90px;height:90px;border-radius:50%;background:${lv.color};margin:0 auto;text-align:center;vertical-align:middle;line-height:1">
+          <table style="border-collapse:collapse;width:90px;height:90px">
+            <tr><td style="text-align:center;vertical-align:middle;padding:0">
+              <div style="font-size:22px;font-weight:700;color:#fff">${total}%</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.85);margin-top:3px">종합</div>
+            </td></tr>
+          </table>
+        </div>
+      </td>
+      <td style="vertical-align:middle">
+        <div style="display:inline-block;padding:5px 14px;border-radius:999px;background:${lv.color}22;border:1px solid ${lv.color}66;color:${lv.color};font-size:13px;font-weight:700;margin-bottom:10px">스트레스 ${lv.label}</div>
+        <div style="font-size:13px;color:#444;line-height:1.75">${lv.desc}</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- 영역별 바 차트 -->
+  <div style="margin-bottom:20px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#ef4444;border-left:3px solid #ef4444;padding-left:8px;margin-bottom:12px">영역별 스트레스 분포</div>
+    <table style="border-collapse:collapse;width:100%">
+      ${AREAS.map(a=>`
+        <tr>
+          <td style="font-size:12px;color:#333;font-weight:500;padding:6px 10px 6px 0;width:70px;white-space:nowrap">${a}</td>
+          <td style="padding:6px 10px 6px 0">
+            <div style="background:#e5e7eb;border-radius:4px;height:14px;width:300px">
+              <div style="background:${AREA_COLORS[a]};height:14px;border-radius:4px;width:${pct[a]||0}%"></div>
+            </div>
+          </td>
+          <td style="font-size:12px;font-weight:700;color:${AREA_COLORS[a]};padding:6px 0;text-align:right;white-space:nowrap">${pct[a]||0}%</td>
+        </tr>`).join('')}
+    </table>
+  </div>
+
+  <!-- 영역별 코멘트 -->
+  <div style="margin-bottom:20px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#ef4444;border-left:3px solid #ef4444;padding-left:8px;margin-bottom:12px">영역별 해석</div>
+    <table style="border-collapse:collapse;width:100%">
+      ${AREAS.map(a=>`
+        <tr style="border-bottom:1px solid #f5f5f5">
+          <td style="padding:8px 6px 8px 0;width:14px"><div style="width:10px;height:10px;border-radius:50%;background:${AREA_COLORS[a]}"></div></td>
+          <td style="font-size:12px;font-weight:700;color:${AREA_COLORS[a]};padding:8px 8px;width:80px;white-space:nowrap">${a}</td>
+          <td style="font-size:12px;color:#444;padding:8px 0;line-height:1.6">${areaComment(a)}</td>
+        </tr>`).join('')}
+    </table>
+  </div>
+
+  <!-- 수준별 의미 -->
+  <div style="background:#fafafa;border-radius:8px;padding:14px 16px;margin-bottom:20px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#888;margin-bottom:10px">스트레스 수준 기준</div>
+    <table style="border-collapse:collapse;width:100%">
+      <tr><td style="padding:4px 8px 4px 0;width:80px"><span style="background:#22c55e20;color:#22c55e;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700">낮음</span></td><td style="font-size:11px;color:#666;padding:4px 0">0–30% · 안정된 상태</td></tr>
+      <tr><td style="padding:4px 8px 4px 0"><span style="background:#eab30820;color:#ca8a04;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700">보통</span></td><td style="font-size:11px;color:#666;padding:4px 0">31–55% · 일상적 스트레스 수준</td></tr>
+      <tr><td style="padding:4px 8px 4px 0"><span style="background:#f9731620;color:#ea580c;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700">높음</span></td><td style="font-size:11px;color:#666;padding:4px 0">56–75% · 적극적 관리 필요</td></tr>
+      <tr><td style="padding:4px 8px 4px 0"><span style="background:#ef444420;color:#dc2626;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700">매우 높음</span></td><td style="font-size:11px;color:#666;padding:4px 0">76–100% · 전문적 도움 권장</td></tr>
+    </table>
+  </div>
+
+  <div style="margin-top:18px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;line-height:1.55">
+    본 해석지는 20문항 간략 검사 결과입니다. 정확한 진단은 전문가 상담을 권장합니다.
+  </div>
+</div>`;
+
+  const btn=document.getElementById('sendBtn');
+  const msg=document.getElementById('sendMsg');
+  btn.textContent='발송 중...';btn.disabled=true;
+  emailjs.send(EJS_SERVICE,EJS_TEMPLATE,{
+    subject:`[스트레스] ${name} · ${phone} — 종합 ${total}% (${lv.label})`,
+    html_content:html,
+    from_name:name,
+    to_email:'garamchoi1091@gmail.com',
+  }).then(()=>{
+    btn.style.display='none';
+    msg.style.display='block';
+    msg.innerHTML=`<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:1.25rem">
+      <div style="font-size:22px;margin-bottom:8px">✅</div>
+      <div style="font-size:15px;font-weight:500;color:#4ade80;margin-bottom:6px">전송 완료!</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">
+        <strong style="color:var(--text)">${name}</strong>님의 검사 결과가 전문가에게 전달되었습니다.<br>
+        입력하신 번호 <strong style="color:var(--text)">${phone}</strong>로 곧 연락드릴 예정입니다.
+      </div>
+    </div>`;
+    document.getElementById('inputName').disabled=true;
+    document.getElementById('inputPhone').disabled=true;
+  }).catch(err=>{
+    console.error(err);btn.textContent='📧 결과 분석 요청하기';btn.disabled=false;
+    msg.style.display='block';
+    msg.innerHTML=`<div style="color:#f87171;font-size:13px">발송에 실패했습니다. 잠시 후 다시 시도해 주세요.</div>`;
+  });
+}
+
+function restart(){Object.keys(ans).forEach(k=>delete ans[k]);show('intro');}
+function closeReport(){document.getElementById('reportOverlay').classList.remove('open');}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init('P8vFkuGZ8hRJeeJb5');</script>
+</body>
+</html>
