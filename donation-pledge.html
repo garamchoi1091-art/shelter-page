@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>후원 약정서 — 군산남자단기청소년쉼터</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark:  #1B4332;
+    --green-mid:   #2D6A4F;
+    --green-soft:  #52B788;
+    --green-pale:  #D8F3DC;
+    --accent:      #F4845F;
+    --warm-white:  #FAFDF9;
+    --error:       #ff6b6b;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--green-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+    height: 100dvh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 배경 */
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 50% at 20% 20%, rgba(82,183,136,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 80% 80%, rgba(244,132,95,0.05) 0%, transparent 60%);
+  }
+
+  /* 진행바 */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-soft), var(--accent));
+    transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  /* 상단 헤더 */
+  .top-bar {
+    position: fixed;
+    top: 8px; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+    height: 44px;
+  }
+  .back-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.07);
+    border: none;
+    color: rgba(255,255,255,0.55);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    opacity: 0;
+  }
+  .back-btn.visible { opacity: 1; }
+  .step-badge {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 1px;
+    background: rgba(255,255,255,0.05);
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  /* 슬라이드 */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: all 0.42s cubic-bezier(0.22,1,0.36,1);
+    pointer-events: none;
+    z-index: 1;
+    padding-top: 60px;
+  }
+  .slide.active { opacity:1; transform:translateX(0); pointer-events:all; }
+  .slide.exit   { opacity:0; transform:translateX(-60px); }
+
+  /* 카드 본문 */
+  .card-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .card-body::-webkit-scrollbar { display: none; }
+
+  .slide-emoji { font-size: 40px; margin-bottom: 14px; display: block; }
+  .slide-tag {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; color: var(--green-soft);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .slide-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(20px, 5.5vw, 26px);
+    color: #fff; line-height: 1.4;
+    margin-bottom: 6px; word-break: keep-all;
+  }
+  .slide-title em { font-style:normal; color: var(--green-soft); }
+  .slide-sub {
+    font-size: 13px; color: rgba(255,255,255,0.45);
+    margin-bottom: 24px; line-height: 1.7; font-weight: 300;
+  }
+
+  /* 입력 필드 */
+  .field-group { display: flex; flex-direction: column; gap: 14px; }
+
+  .field-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.5px; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .field-label span { color: var(--accent); }
+
+  .field-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 16px;
+    color: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
+    outline: none;
+    transition: border 0.2s, background 0.2s;
+    -webkit-appearance: none;
+  }
+  .field-input::placeholder { color: rgba(255,255,255,0.2); font-size: 14px; }
+  .field-input:focus {
+    border-color: var(--green-soft);
+    background: rgba(82,183,136,0.07);
+  }
+  .field-input.error { border-color: var(--error); }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* 선택 옵션 */
+  .choice-grid { display: flex; flex-direction: column; gap: 10px; }
+  .choice-item {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 15px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .choice-item:active, .choice-item.selected {
+    background: rgba(82,183,136,0.12);
+    border-color: var(--green-soft);
+  }
+  .choice-icon { font-size: 22px; flex-shrink: 0; }
+  .choice-info { flex: 1; }
+  .choice-title {
+    font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 2px;
+  }
+  .choice-desc { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .choice-radio {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    flex-shrink: 0; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .choice-item.selected .choice-radio {
+    background: var(--green-soft);
+    border-color: var(--green-soft);
+  }
+  .choice-item.selected .choice-radio::after {
+    content: '✓'; color: white; font-size: 11px; font-weight: 700;
+  }
+
+  /* 금액 그리드 */
+  .amount-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .amount-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .amount-btn small { display:block; font-size:11px; color:rgba(255,255,255,0.35); font-weight:300; margin-top:3px; }
+  .amount-btn.selected {
+    background: rgba(82,183,136,0.15);
+    border-color: var(--green-soft);
+    color: var(--green-soft);
+  }
+
+  /* 체크박스 */
+  .check-list { display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1.5px solid transparent;
+  }
+  .check-item.selected { border-color: rgba(82,183,136,0.3); background: rgba(82,183,136,0.06); }
+  .check-box {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    flex-shrink: 0; margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .check-item.selected .check-box {
+    background: var(--green-soft); border-color: var(--green-soft);
+  }
+  .check-item.selected .check-box::after { content:'✓'; color:white; font-size:12px; font-weight:700; }
+  .check-text { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+
+  /* 동의 텍스트 박스 */
+  .agree-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.9;
+    margin-bottom: 16px;
+  }
+  .agree-box strong { color: rgba(255,255,255,0.6); }
+
+  /* 하단 버튼 */
+  .btn-area {
+    padding: 12px 24px 28px;
+    display: flex; flex-direction: column; gap: 8px;
+    flex-shrink: 0;
+  }
+  .btn-main {
+    width: 100%; padding: 16px;
+    background: var(--green-soft);
+    color: white; border: none;
+    border-radius: 14px;
+    font-size: 16px; font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer; transition: all 0.25s;
+    box-shadow: 0 8px 24px rgba(82,183,136,0.3);
+  }
+  .btn-main:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+  .btn-main:not(:disabled):active { transform: scale(0.97); }
+  .btn-sub {
+    width: 100%; padding: 12px;
+    background: transparent; color: rgba(255,255,255,0.35);
+    border: none; font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer; transition: color 0.2s;
+  }
+
+  /* 완료 화면 */
+  .finish-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px 28px; text-align: center;
+  }
+  .finish-anim {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-mid), var(--green-soft));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; margin-bottom: 28px;
+    box-shadow: 0 16px 40px rgba(82,183,136,0.4);
+    animation: popIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.4) rotate(-10deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .finish-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 22px; color: #fff;
+    margin-bottom: 12px; line-height: 1.5;
+  }
+  .finish-body {
+    font-size: 13px; color: rgba(255,255,255,0.45);
+    line-height: 1.9; margin-bottom: 28px; font-weight: 300;
+  }
+  .summary-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(82,183,136,0.2);
+    border-radius: 16px;
+    padding: 20px; width: 100%;
+    text-align: left; margin-bottom: 20px;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    gap: 12px;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-key { font-size: 11px; color: rgba(255,255,255,0.35); flex-shrink: 0; padding-top: 2px; }
+  .summary-val { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; text-align: right; }
+  .contact-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(82,183,136,0.15);
+    border-radius: 14px; padding: 16px 20px;
+    width: 100%;
+  }
+  .contact-label { font-size: 10px; color: var(--green-soft); letter-spacing: 2px; margin-bottom: 6px; }
+  .contact-number { font-family: 'Noto Serif KR', serif; font-size: 22px; color: #fff; }
+  .contact-sub { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+  /* 에러 메시지 */
+  .err-msg { font-size: 11px; color: var(--error); margin-top: 6px; display: none; }
+  .err-msg.show { display: block; }
+
+  /* 구분선 */
+  .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<!-- 진행바 -->
+<div class="progress-bar"><div class="progress-fill" id="pFill"></div></div>
+
+<!-- 상단 바 -->
+<div class="top-bar">
+  <button class="back-btn" id="backBtn" onclick="prev()">‹</button>
+  <div class="step-badge" id="stepBadge"></div>
+</div>
+
+<div class="app">
+
+  <!-- ══ 0: 인트로 ══ -->
+  <div class="slide active" id="s0">
+    <div class="card-body">
+      <span class="slide-emoji">📝</span>
+      <div class="slide-tag">후원 약정서</div>
+      <h1 class="slide-title">함께해 주셔서<br><em>감사합니다</em></h1>
+      <p class="slide-sub">작성하신 정보는 후원 관리 목적으로만 사용되며, 담당자가 3일 이내 연락드립니다.<br><br>약 2분이면 완료됩니다.</p>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="next()">약정서 작성 시작 →</button>
+    </div>
+  </div>
+
+  <!-- ══ 1: 성명·연락처 ══ -->
+  <div class="slide" id="s1">
+    <div class="card-body">
+      <span class="slide-emoji">👤</span>
+      <div class="slide-tag">기본 정보</div>
+      <h2 class="slide-title">후원자 정보를<br>입력해 주세요</h2>
+      <p class="slide-sub">기부금 영수증 및 후원 안내에 사용됩니다.</p>
+      <div class="field-group">
+        <div>
+          <div class="field-label">성함 <span>*</span></div>
+          <input class="field-input" id="f_name" type="text" placeholder="홍길동" autocomplete="name">
+          <div class="err-msg" id="err_name">성함을 입력해 주세요.</div>
+        </div>
+        <div>
+          <div class="field-label">연락처 <span>*</span></div>
+          <input class="field-input" id="f_phone" type="tel" placeholder="010-0000-0000" autocomplete="tel" oninput="formatPhone(this)" maxlength="13">
+          <div class="err-msg" id="err_phone">연락처를 입력해 주세요.</div>
+        </div>
+        <div>
+          <div class="field-label">이메일</div>
+          <input class="field-input" id="f_email" type="email" placeholder="example@email.com" autocomplete="email">
+        </div>
+      </div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="step1Next()">다음 →</button>
+      <button class="btn-sub" onclick="prev()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 2: 생년월일·주소 ══ -->
+  <div class="slide" id="s2">
+    <div class="card-body">
+      <span class="slide-emoji">🏠</span>
+      <div class="slide-tag">추가 정보</div>
+      <h2 class="slide-title">영수증 발급을 위한<br>정보입니다</h2>
+      <p class="slide-sub">세금공제 영수증 발송에 사용됩니다.</p>
+      <div class="field-group">
+        <div>
+          <div class="field-label">생년월일 <span>*</span></div>
+          <input class="field-input" id="f_birth" type="text" placeholder="예: 1980.01.01">
+          <div class="err-msg" id="err_birth">생년월일을 입력해 주세요.</div>
+        </div>
+        <div>
+          <div class="field-label">주소 <span style="color:rgba(255,255,255,0.3)">(선택)</span></div>
+          <input class="field-input" id="f_addr1" type="text" placeholder="시/도, 시/군/구" autocomplete="address-level2">
+          <input class="field-input" id="f_addr2" type="text" placeholder="상세 주소" style="margin-top:8px;" autocomplete="address-level3">
+          <div class="err-msg" id="err_addr">주소를 입력해 주세요.</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="step2Next()">다음 →</button>
+      <button class="btn-sub" onclick="prev()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 3: 후원 방식 ══ -->
+  <div class="slide" id="s3">
+    <div class="card-body">
+      <span class="slide-emoji">💚</span>
+      <div class="slide-tag">후원 방식</div>
+      <h2 class="slide-title">어떻게<br><em>함께하실 건가요?</em></h2>
+      <p class="slide-sub">후원 방식을 선택해 주세요.</p>
+      <div class="choice-grid">
+        <div class="choice-item" onclick="selectType(this,'정기후원 (매월 자동이체)')">
+          <div class="choice-icon">📅</div>
+          <div class="choice-info">
+            <div class="choice-title">정기후원</div>
+            <div class="choice-desc">매월 자동이체로 꾸준히</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+        <div class="choice-item" onclick="selectType(this,'일시후원 (1회)')">
+          <div class="choice-icon">💳</div>
+          <div class="choice-info">
+            <div class="choice-title">일시후원</div>
+            <div class="choice-desc">1회 후원</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+        <div class="choice-item" onclick="selectType(this,'물품후원')">
+          <div class="choice-icon">🎁</div>
+          <div class="choice-info">
+            <div class="choice-title">물품후원</div>
+            <div class="choice-desc">생필품, 식품 등</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+      </div>
+      <div class="err-msg" id="err_type" style="margin-top:12px;">후원 방식을 선택해 주세요.</div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="step3Next()">다음 →</button>
+      <button class="btn-sub" onclick="prev()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 4: 금액 선택 ══ -->
+  <div class="slide" id="s4">
+    <div class="card-body">
+      <span class="slide-emoji">🌱</span>
+      <div class="slide-tag">후원 금액</div>
+      <h2 class="slide-title">마음이 닿는<br><em>만큼 선택해 주세요</em></h2>
+      <p class="slide-sub" id="amountDesc">월 후원 금액을 선택해 주세요.</p>
+      <div class="amount-grid" id="amountGrid">
+        <div class="amount-btn" onclick="selectAmount(this,'10,000원')">
+          1만원<small>하루 한 끼</small>
+        </div>
+        <div class="amount-btn" onclick="selectAmount(this,'30,000원')">
+          3만원<small>한 달 생활</small>
+        </div>
+        <div class="amount-btn" onclick="selectAmount(this,'50,000원')">
+          5만원<small>심리상담</small>
+        </div>
+        <div class="amount-btn" onclick="selectAmount(this,'100,000원')">
+          10만원<small>프로그램 후원</small>
+        </div>
+      </div>
+      <div class="field-label" style="margin-bottom:6px;">직접 입력</div>
+      <input class="field-input" id="f_amount_custom" type="number" placeholder="금액 입력 (원)" oninput="customAmount(this)">
+      <div class="err-msg" id="err_amount" style="margin-top:8px;">후원 금액을 선택하거나 입력해 주세요.</div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="step4Next()">다음 →</button>
+      <button class="btn-sub" onclick="prev()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 5: 계좌/납부 정보 ══ -->
+  <div class="slide" id="s5">
+    <div class="card-body">
+      <span class="slide-emoji">🏦</span>
+      <div class="slide-tag" id="s5tag">자동이체 정보</div>
+      <h2 class="slide-title" id="s5title">자동이체 정보를<br>입력해 주세요</h2>
+      <p class="slide-sub" id="s5sub">매월 정해진 날에 자동으로 출금됩니다.</p>
+      <div class="field-group" id="s5fields">
+        <div id="s5_monthly_wrap">
+          <div class="field-label">후원 시작 희망월</div>
+          <input class="field-input" id="f_startmonth" type="month" style="color-scheme:dark;">
+        </div>
+        <div id="s5_bank_wrap">
+          <div class="field-label">은행명 <span style="color:var(--accent)">*</span></div>
+          <input class="field-input" id="f_bank" type="text" placeholder="예: 국민은행">
+          <div class="err-msg" id="err_bank">은행명을 입력해 주세요.</div>
+        </div>
+        <div id="s5_account_wrap">
+          <div class="field-label">계좌번호 <span style="color:var(--accent)">*</span></div>
+          <input class="field-input" id="f_account" type="text" placeholder="숫자만 입력">
+          <div class="err-msg" id="err_account">계좌번호를 입력해 주세요.</div>
+        </div>
+        <div id="s5_holder_wrap">
+          <div class="field-label">예금주명 <span style="color:var(--accent)">*</span></div>
+          <input class="field-input" id="f_holder" type="text" placeholder="예금주 성함">
+          <div class="err-msg" id="err_holder">예금주명을 입력해 주세요.</div>
+        </div>
+        <!-- 일시후원용 -->
+        <div id="s5_onetime_wrap" style="display:none;">
+          <div class="field-label">입금 희망일</div>
+          <input class="field-input" id="f_paydate" type="text" placeholder="예: 2025.05.10">
+          <div style="height:12px;"></div>
+          <div class="field-label">입금자명 <span style="color:var(--accent)">*</span></div>
+          <input class="field-input" id="f_depositor" type="text" placeholder="계좌 입금 시 표시될 이름">
+          <div class="err-msg" id="err_depositor">입금자명을 입력해 주세요.</div>
+          <div class="agree-box" style="margin-top:14px;">
+            📌 입금 계좌<br>
+            <strong>○○은행 000-0000-0000</strong><br>
+            (군산남자단기청소년쉼터)<br><br>
+            입금 후 담당자가 확인 연락드립니다.
+          </div>
+        </div>
+        <!-- 물품후원용 -->
+        <div id="s5_goods_wrap" style="display:none;">
+          <div class="field-label">후원 물품</div>
+          <input class="field-input" id="f_goods" type="text" placeholder="예: 쌀 10kg, 라면 1박스 등">
+          <div style="height:12px;"></div>
+          <div class="field-label">전달 희망일</div>
+          <input class="field-input" id="f_goodsdate" type="text" placeholder="예: 2025.05.10">
+        </div>
+      </div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="step5Next()">다음 →</button>
+      <button class="btn-sub" onclick="prev()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 6: 후원 목적 + 영수증 ══ -->
+  <div class="slide" id="s6">
+    <div class="card-body">
+      <span class="slide-emoji">🎯</span>
+      <div class="slide-tag">후원 목적</div>
+      <h2 class="slide-title">어디에 쓰였으면<br><em>하시나요?</em></h2>
+      <p class="slide-sub">선택하지 않으셔도 됩니다. 필요한 곳에 소중히 사용됩니다.</p>
+      <div class="check-list">
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">🧒 위기청소년을 위한 프로그램<br><span style="font-size:11px;color:rgba(255,255,255,0.3);">상담, 정서, 진로, 자립, 퇴소후 자립 등</span></div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">🏢 쉼터 사무운영<br><span style="font-size:11px;color:rgba(255,255,255,0.3);">전기요금, 난방비, 사무용품, 수용비</span></div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div class="check-text">✨ 지정하지 않음<br><span style="font-size:11px;color:rgba(255,255,255,0.3);">필요한 곳에 사용</span></div>
+        </div>
+      </div>
+      <div class="divider" style="margin:20px 0;"></div>
+      <div class="field-label" style="margin-bottom:10px;">기부금 영수증 발급</div>
+      <div class="choice-grid">
+
+        <div class="choice-item" onclick="selectReceipt(this,'국세청 등록')">
+          <div class="choice-icon">🏛️</div>
+          <div class="choice-info">
+            <div class="choice-title">국세청 등록</div>
+            <div class="choice-desc">주민등록번호로 자동 등록</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+        <div class="receipt-extra" id="extra_gov" style="display:none; padding:8px 4px 12px;">
+          <input class="field-input" id="f_receipt_gov" type="text" placeholder="예: 800101-1234567" style="font-size:15px; padding:14px 16px; background:rgba(255,255,255,0.15); border:2px solid rgba(82,183,136,0.7); color:#ffffff; font-weight:500;">
+          <div style="font-size:12px; color:rgba(82,183,136,0.9); margin-top:6px; padding-left:2px; font-weight:500;">※ 개인정보는 안전하게 암호화 처리됩니다</div>
+        </div>
+
+        <div class="choice-item" onclick="selectReceipt(this,'이메일 수령')">
+          <div class="choice-icon">📧</div>
+          <div class="choice-info">
+            <div class="choice-title">이메일 수령</div>
+            <div class="choice-desc">이메일로 영수증 발송</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+        <div class="receipt-extra" id="extra_email" style="display:none; padding:8px 4px 12px;">
+          <input class="field-input" id="f_receipt_email" type="email" placeholder="예: example@gmail.com" style="font-size:15px; padding:14px 16px; background:rgba(255,255,255,0.15); border:2px solid rgba(82,183,136,0.7); color:#ffffff; font-weight:500;">
+        </div>
+
+        <div class="choice-item" onclick="selectReceipt(this,'팩스 수령')">
+          <div class="choice-icon">📠</div>
+          <div class="choice-info">
+            <div class="choice-title">팩스 수령</div>
+            <div class="choice-desc">팩스 번호로 전송</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+        <div class="receipt-extra" id="extra_fax" style="display:none; padding:8px 4px 12px;">
+          <input class="field-input" id="f_receipt_fax" type="tel" placeholder="예: 063-000-0000" style="font-size:15px; padding:14px 16px; background:rgba(255,255,255,0.15); border:2px solid rgba(82,183,136,0.7); color:#ffffff; font-weight:500;">
+        </div>
+
+        <div class="choice-item" onclick="selectReceipt(this,'SNS 수령')">
+          <div class="choice-icon">💬</div>
+          <div class="choice-info">
+            <div class="choice-title">SNS 수령</div>
+            <div class="choice-desc">카카오톡으로 전송</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+        <div class="receipt-extra" id="extra_sns" style="display:none; padding:8px 4px 12px;">
+          <input class="field-input" id="f_receipt_sns" type="text" placeholder="예: kakao_id123 (카카오톡 아이디)" style="font-size:15px; padding:14px 16px; background:rgba(255,255,255,0.15); border:2px solid rgba(82,183,136,0.7); color:#ffffff; font-weight:500;">
+        </div>
+
+        <div class="choice-item" onclick="selectReceipt(this,'필요 없음')">
+          <div class="choice-icon">✖️</div>
+          <div class="choice-info">
+            <div class="choice-title">필요 없음</div>
+            <div class="choice-desc">영수증 발급 생략</div>
+          </div>
+          <div class="choice-radio"></div>
+        </div>
+
+      </div>
+      <div class="err-msg" id="err_receipt" style="margin-top:8px;">영수증 발급 방법을 선택해 주세요.</div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="step6Next()">다음 →</button>
+      <button class="btn-sub" onclick="prev()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 7: 개인정보 동의 ══ -->
+  <div class="slide" id="s7">
+    <div class="card-body">
+      <span class="slide-emoji">🔒</span>
+      <div class="slide-tag">개인정보 동의</div>
+      <h2 class="slide-title">마지막 단계입니다</h2>
+      <p class="slide-sub">아래 내용을 확인하고 동의해 주세요.</p>
+      <div class="agree-box">
+        <strong>개인정보 수집·이용 동의</strong><br><br>
+        · 수집항목: 성명, 연락처, 이메일, 주소, 계좌정보<br>
+        · 수집목적: 후원금 관리, 영수증 발급, 후원 안내<br>
+        · 보유기간: 후원 종료 후 5년<br>
+        · 제3자 제공: 없음
+      </div>
+      <div class="check-list">
+        <div class="check-item" id="agreeMain" onclick="toggleAgree('agreeMain')">
+          <div class="check-box"></div>
+          <div class="check-text"><strong style="color:rgba(255,255,255,0.8);">개인정보 수집·이용에 동의합니다</strong> (필수)</div>
+        </div>
+        <div class="check-item" id="agreeNews" onclick="toggleAgree('agreeNews')">
+          <div class="check-box"></div>
+          <div class="check-text">후원 소식 및 뉴스레터 수신에 동의합니다 (선택)</div>
+        </div>
+      </div>
+      <div class="err-msg" id="err_agree" style="margin-top:12px;">필수 동의항목을 체크해 주세요.</div>
+    </div>
+    <div class="btn-area">
+      <button class="btn-main" onclick="submit()">약정서 제출하기 ✓</button>
+      <button class="btn-sub" onclick="prev()">← 이전</button>
+    </div>
+  </div>
+
+  <!-- ══ 8: 완료 ══ -->
+  <div class="slide" id="s8">
+    <div class="finish-wrap">
+      <div class="finish-anim">💚</div>
+      <h2 class="finish-title">약정서 제출 완료!</h2>
+      <p class="finish-body">소중한 마음 감사합니다.<br>담당자가 <strong style="color:rgba(255,255,255,0.7);">3일 이내</strong> 연락드리겠습니다.<br><br>후원은 언제든 변경·해지 가능합니다.</p>
+
+      <div class="summary-card" id="summaryCard"></div>
+
+      <div class="contact-card">
+        <div class="contact-label">문의 전화</div>
+        <div class="contact-number">063-471-1091</div>
+        <div class="contact-sub">평일 09:00 – 18:00</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+  // ── 상태 ─────────────────────────────────────────────
+  const TOTAL = 9;
+  let cur = 0;
+  let donationType = '';
+  let selectedAmount = '';
+  let receiptType = '';
+  let purposes = [];
+  let agreeMain = false, agreeNews = false;
+
+  // ── 화면 업데이트 ─────────────────────────────────────
+  function ui() {
+    document.getElementById('pFill').style.width = ((cur+1)/TOTAL*100)+'%';
+    document.getElementById('backBtn').classList.toggle('visible', cur > 0);
+    const badge = document.getElementById('stepBadge');
+    badge.textContent = cur > 0 && cur < TOTAL-1 ? `${cur} / ${TOTAL-2}` : '';
+  }
+
+  // ── 슬라이드 이동 ─────────────────────────────────────
+  function goTo(n) {
+    if (n < 0 || n >= TOTAL || n === cur) return;
+    const c = document.getElementById('s'+cur);
+    const t = document.getElementById('s'+n);
+    c.classList.add('exit');
+    c.classList.remove('active');
+    setTimeout(()=> c.classList.remove('exit'), 420);
+    t.classList.add('active');
+    cur = n;
+    ui();
+  }
+  function next() { goTo(cur+1); }
+  function prev() { goTo(cur-1); }
+
+  // ── 에러 처리 ─────────────────────────────────────────
+  function showErr(id, show) {
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('show', show);
+  }
+  function markField(id, err) {
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('error', err);
+  }
+
+  // ── Step 1: 기본 정보 ─────────────────────────────────
+  function step1Next() {
+    const name  = document.getElementById('f_name').value.trim();
+    const phone = document.getElementById('f_phone').value.trim();
+    let ok = true;
+    if (!name)  { markField('f_name','error');  showErr('err_name',true);  ok=false; }
+    else        { markField('f_name',false);    showErr('err_name',false); }
+    if (!phone) { markField('f_phone','error'); showErr('err_phone',true); ok=false; }
+    else        { markField('f_phone',false);   showErr('err_phone',false);}
+    if (ok) next();
+  }
+
+  // ── Step 2: 추가 정보 ─────────────────────────────────
+  function step2Next() {
+    const birth = document.getElementById('f_birth').value.trim();
+    let ok = true;
+    if (!birth) { markField('f_birth','error'); showErr('err_birth',true); ok=false; }
+    else        { markField('f_birth',false);   showErr('err_birth',false);}
+    if (ok) next();
+  }
+
+  // ── Step 3: 후원 방식 ─────────────────────────────────
+  function selectType(el, val) {
+    document.querySelectorAll('#s3 .choice-item').forEach(i=>i.classList.remove('selected'));
+    el.classList.add('selected');
+    donationType = val;
+    showErr('err_type', false);
+    // 금액 슬라이드 설명 업데이트
+    const isOnetime = val === '일시후원 (1회)';
+    const isGoods   = val === '물품후원';
+    document.getElementById('amountDesc').textContent =
+      isGoods ? '후원 물품 내역은 다음 단계에서 입력해 주세요.' :
+      isOnetime ? '일시 후원 금액을 선택해 주세요.' : '월 후원 금액을 선택해 주세요.';
+    // s5 화면 구성
+    document.getElementById('s5_monthly_wrap').style.display = val==='정기후원 (매월 자동이체)' ? '' : 'none';
+    document.getElementById('s5_bank_wrap').style.display    = val==='정기후원 (매월 자동이체)' ? '' : 'none';
+    document.getElementById('s5_account_wrap').style.display = val==='정기후원 (매월 자동이체)' ? '' : 'none';
+    document.getElementById('s5_holder_wrap').style.display  = val==='정기후원 (매월 자동이체)' ? '' : 'none';
+    document.getElementById('s5_onetime_wrap').style.display = isOnetime ? '' : 'none';
+    document.getElementById('s5_goods_wrap').style.display   = isGoods   ? '' : 'none';
+    document.getElementById('s5tag').textContent   = isGoods ? '물품 정보' : isOnetime ? '입금 정보' : '자동이체 정보';
+    document.getElementById('s5title').textContent = isGoods ? '후원 물품을\n알려주세요' : isOnetime ? '입금 정보를\n입력해 주세요' : '자동이체 정보를\n입력해 주세요';
+    document.getElementById('s5sub').textContent   = isGoods ? '전달 방법은 담당자가 안내드립니다.' : isOnetime ? '입금 후 담당자가 확인 연락드립니다.' : '매월 정해진 날에 자동으로 출금됩니다.';
+  }
+  function step3Next() {
+    if (!donationType) { showErr('err_type', true); return; }
+    next();
+  }
+
+  // ── Step 4: 금액 ──────────────────────────────────────
+  function selectAmount(el, val) {
+    document.querySelectorAll('.amount-btn').forEach(b=>b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedAmount = val;
+    document.getElementById('f_amount_custom').value = '';
+    showErr('err_amount', false);
+  }
+  function customAmount(el) {
+    document.querySelectorAll('.amount-btn').forEach(b=>b.classList.remove('selected'));
+    selectedAmount = el.value ? el.value+'원' : '';
+    showErr('err_amount', false);
+  }
+  function step4Next() {
+    if (donationType === '물품후원') { next(); return; }
+    if (!selectedAmount) { showErr('err_amount', true); return; }
+    next();
+  }
+
+  // ── Step 5: 계좌/납부 ────────────────────────────────
+  function step5Next() {
+    if (donationType === '정기후원 (매월 자동이체)') {
+      const bank    = document.getElementById('f_bank').value.trim();
+      const account = document.getElementById('f_account').value.trim();
+      const holder  = document.getElementById('f_holder').value.trim();
+      let ok = true;
+      if (!bank)    { markField('f_bank','error');    showErr('err_bank',true);    ok=false; }
+      else          { markField('f_bank',false);      showErr('err_bank',false);   }
+      if (!account) { markField('f_account','error'); showErr('err_account',true); ok=false; }
+      else          { markField('f_account',false);   showErr('err_account',false);}
+      if (!holder)  { markField('f_holder','error');  showErr('err_holder',true);  ok=false; }
+      else          { markField('f_holder',false);    showErr('err_holder',false); }
+      if (!ok) return;
+    } else if (donationType === '일시후원 (1회)') {
+      const dep = document.getElementById('f_depositor').value.trim();
+      if (!dep) { markField('f_depositor','error'); showErr('err_depositor',true); return; }
+      markField('f_depositor',false); showErr('err_depositor',false);
+    }
+    next();
+  }
+
+  // ── Step 6: 체크박스 ──────────────────────────────────
+  function toggleCheck(el) {
+    el.classList.toggle('selected');
+    purposes = Array.from(document.querySelectorAll('#s6 .check-list .check-item.selected'))
+      .map(i=>i.querySelector('.check-text').textContent.trim());
+  }
+  const receiptExtraMap = {
+    '국세청 등록': 'extra_gov',
+    '이메일 수령': 'extra_email',
+    '팩스 수령':   'extra_fax',
+    'SNS 수령':    'extra_sns',
+  };
+  function selectReceipt(el, val) {
+    document.querySelectorAll('#s6 .choice-item').forEach(i=>i.classList.remove('selected'));
+    document.querySelectorAll('.receipt-extra').forEach(e=>e.style.display='none');
+    el.classList.add('selected');
+    receiptType = val;
+    if (receiptExtraMap[val]) {
+      document.getElementById(receiptExtraMap[val]).style.display = 'block';
+    }
+  }
+
+  // ── Step 7: 동의 ──────────────────────────────────────
+  function toggleAgree(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('selected');
+    if (id === 'agreeMain') agreeMain = el.classList.contains('selected');
+    if (id === 'agreeNews') agreeNews = el.classList.contains('selected');
+    showErr('err_agree', false);
+  }
+
+  // ── 제출 ──────────────────────────────────────────────
+  function submit() {
+    if (!agreeMain) { showErr('err_agree', true); return; }
+
+    // 버튼 상태
+    const btn = document.querySelector('#s7 .btn-main');
+    btn.textContent = '제출 중...';
+    btn.disabled = true;
+
+    // 데이터 수집
+    const name     = document.getElementById('f_name').value;
+    const phone    = document.getElementById('f_phone').value;
+    const email    = document.getElementById('f_email').value;
+    const birth    = document.getElementById('f_birth').value;
+    const addr1    = document.getElementById('f_addr1').value;
+    const addr2    = document.getElementById('f_addr2').value;
+    const address  = [addr1, addr2].filter(Boolean).join(' ');
+    const amount   = donationType === '물품후원'
+      ? (document.getElementById('f_goods').value || '물품후원')
+      : selectedAmount;
+    const startMonth = document.getElementById('f_startmonth').value;
+    const bank       = document.getElementById('f_bank').value;
+    const account    = document.getElementById('f_account').value;
+    const holder     = document.getElementById('f_holder').value;
+
+    const receiptExtras = {
+      '국세청 등록': document.getElementById('f_receipt_gov')?.value || '',
+      '이메일 수령': document.getElementById('f_receipt_email')?.value || '',
+      '팩스 수령':   document.getElementById('f_receipt_fax')?.value || '',
+      'SNS 수령':    document.getElementById('f_receipt_sns')?.value || '',
+    };
+    const receiptDetail = receiptExtras[receiptType]
+      ? receiptType + ' (' + receiptExtras[receiptType] + ')'
+      : (receiptType || '미선택');
+
+    const purposeStr = purposes.map(p => p.replace(/^[^\s]+\s/, '')).join(', ');
+
+    // ── GET 방식으로 Apps Script에 전송 ──────────────
+    const params = new URLSearchParams({
+      name, phone,
+      email:        email || '',
+      birth,
+      address:      address || '',
+      donationType,
+      amount:       amount || '',
+      startMonth:   startMonth || '',
+      bank:         bank || '',
+      account:      account || '',
+      holder:       holder || '',
+      receipt:      receiptDetail,
+      purposes:     purposeStr,
+      agreeNews:    agreeNews ? '수신 동의' : '수신 거부'
+    });
+
+    const img = new Image();
+    img.src = 'https://script.google.com/macros/s/AKfycbxJ0MTaWXIw6RCSyAD-vD3Cm6BpsTDVSl6u7B8bhJuo0rcYomG_WSik97ise6bYm1ISYw/exec?' + params.toString();
+
+    // 2초 후 완료 화면으로 이동
+    setTimeout(function() {
+      const rows = [
+        { k:'성함',     v: name },
+        { k:'연락처',   v: phone },
+        { k:'후원방식', v: donationType },
+        { k:'후원금액', v: amount },
+        { k:'영수증',   v: receiptDetail },
+        { k:'뉴스레터', v: agreeNews ? '수신 동의' : '수신 거부' },
+      ];
+      if (purposeStr) rows.push({ k:'후원목적', v: purposeStr });
+      document.getElementById('summaryCard').innerHTML =
+        rows.map(r => '<div class="summary-row"><span class="summary-key">' + r.k + '</span><span class="summary-val">' + r.v + '</span></div>').join('');
+      goTo(8);
+    }, 2000);
+  }
+
+    // ── step6Next: 영수증 필수 체크 ─────────────────────
+  function step6Next() {
+    if (!receiptType) { showErr('err_receipt', true); return; }
+    showErr('err_receipt', false);
+    next();
+  }
+
+  // ── 연락처 자동 하이픈 ────────────────────────────────
+  function formatPhone(el) {
+    let v = el.value.replace(/\D/g, '');
+    if (v.length <= 3) el.value = v;
+    else if (v.length <= 7) el.value = v.slice(0,3) + '-' + v.slice(3);
+    else el.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+  }
+
+  // ── 초기화 ────────────────────────────────────────────
+  ui();
+</script>
+</body>
+</html>
