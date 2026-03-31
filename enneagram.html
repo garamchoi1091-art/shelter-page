@@ -41,7 +41,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .enn-circle span{position:relative;z-index:1;font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--text)}
 
 .intro-heading{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.3}
-.intro-sub{font-size:14px;color:var(--text2);margin-bottom:1.75rem}
+.intro-sub{font-size:16px;color:var(--text2);margin-bottom:1.75rem}
 .intro-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;text-align:left;margin-bottom:1.75rem}
 .intro-card p{font-size:13px;color:var(--text2);line-height:1.85}
 .intro-card strong{color:var(--text);font-weight:500}
@@ -65,7 +65,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
   border-bottom:1px solid var(--border);padding:1rem 1.5rem
 }
 .quiz-header-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
-.q-counter{font-size:13px;color:var(--text3);white-space:nowrap;min-width:56px}
+.q-counter{font-size:15px;color:var(--text3);white-space:nowrap;min-width:56px}
 .prog-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#7c3aed,#06b6d4);transition:width 0.4s cubic-bezier(0.34,1.56,0.64,1);width:0%}
 .quiz-body{flex:1;padding:1.5rem 1.5rem 0;max-width:640px;margin:0 auto;width:100%}
@@ -77,8 +77,8 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
   animation:cardIn 0.3s ease both
 }
 @keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.q-num{font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:0.06em}
-.q-text{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:1.1rem}
+.q-num{font-size:13px;color:var(--text3);margin-bottom:6px;letter-spacing:0.06em}
+.q-text{font-size:17px;color:var(--text);line-height:1.7;margin-bottom:1.1rem}
 .q-type-badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.1em;padding:3px 9px;border-radius:999px;margin-bottom:10px;text-transform:uppercase}
 
 .scale-row{display:flex;gap:6px;align-items:stretch}
@@ -157,7 +157,7 @@ body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(
 .action-btn.primary{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;box-shadow:0 0 20px rgba(168,85,247,0.25)}
 .action-btn.secondary{background:transparent;color:var(--text2);border:1px solid var(--border)}
 .report-btn{
-  width:100%;padding:13px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;
+  width:100%;padding:15px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;
   background:rgba(6,182,212,0.1);color:#06b6d4;border:1px solid rgba(6,182,212,0.3);
   transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px
 }
@@ -493,25 +493,25 @@ function showResult(){
         <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0891b2,#06b6d4);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 0 32px rgba(6,182,212,0.4)">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div style="font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px">검사가 완료되었습니다!</div>
-        <div style="font-size:14px;color:var(--text2);line-height:1.75">이름과 전화번호를 입력하시면<br>전문가가 결과를 분석하여 직접 연락드립니다.</div>
+        <div style="font-family:'Noto Serif KR',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px">검사가 완료되었습니다!</div>
+        <div style="font-size:16px;color:var(--text2);line-height:1.75">이름과 전화번호를 입력하시면<br>전문가가 결과를 분석하여 직접 연락드립니다.</div>
       </div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem">
         <div style="margin-bottom:1rem">
-          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">이름 *</label>
+          <label style="display:block;font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px">이름 *</label>
           <input id="inputName" type="text" placeholder="홍길동" maxlength="20"
-            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:border-color 0.15s"
             onfocus="this.style.borderColor='rgba(6,182,212,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
         </div>
         <div style="margin-bottom:1.25rem">
-          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">전화번호 *</label>
+          <label style="display:block;font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px">전화번호 *</label>
           <input id="inputPhone" type="tel" placeholder="010-0000-0000" maxlength="20"
-            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:border-color 0.15s"
             onfocus="this.style.borderColor='rgba(6,182,212,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
         </div>
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.04em">개인정보 수집 및 이용 동의</div>
-          <div style="font-size:11px;color:var(--text3);line-height:1.8;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.04em">개인정보 수집 및 이용 동의</div>
+          <div style="font-size:13px;color:var(--text3);line-height:1.8;margin-bottom:10px">
             · <b style="color:var(--text2)">수집 항목:</b> 이름, 전화번호<br>
             · <b style="color:var(--text2)">수집 목적:</b> 성격유형 검사 결과 분석 및 전문가 상담 연락<br>
             · <b style="color:var(--text2)">보유 기간:</b> 상담 완료 후 즉시 파기<br>
@@ -520,18 +520,18 @@ function showResult(){
           </div>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="privacyCheck" style="width:16px;height:16px;accent-color:#06b6d4;cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:var(--text2)">개인정보 수집 및 이용에 <b style="color:var(--text)">동의합니다</b> <span style="color:#f43f5e">*</span></span>
+            <span style="font-size:14px;color:var(--text2)">개인정보 수집 및 이용에 <b style="color:var(--text)">동의합니다</b> <span style="color:#f43f5e">*</span></span>
           </label>
         </div>
         <button id="sendBtn" onclick="sendEmail()"
-          style="width:100%;padding:13px;border-radius:999px;background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(6,182,212,0.3);transition:transform 0.2s"
+          style="width:100%;padding:15px;border-radius:999px;background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;font-size:17px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(6,182,212,0.3);transition:transform 0.2s"
           onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           📧 결과 분석 요청하기
         </button>
         <div id="sendMsg" style="display:none;text-align:center;margin-top:1rem;font-size:13px;line-height:1.7"></div>
       </div>
       <div style="text-align:center;margin-top:1.5rem">
-        <button onclick="restart()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit">← 처음으로 돌아가기</button>
+        <button onclick="restart()" style="background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;font-family:inherit">← 처음으로 돌아가기</button>
       </div>
     </div>
   `;
@@ -747,7 +747,7 @@ function sendEmail(){
   }).then(()=>{
     btn.style.display='none';
     msg.style.display='block';
-    msg.innerHTML=`<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:1.25rem"><div style="font-size:22px;margin-bottom:8px">✅</div><div style="font-size:15px;font-weight:500;color:#4ade80;margin-bottom:6px">전송 완료!</div><div style="font-size:13px;color:var(--text2);line-height:1.7"><strong style="color:var(--text)">${name}</strong>님의 검사 결과가 전문가에게 전달되었습니다.<br>입력하신 번호 <strong style="color:var(--text)">${phone}</strong>로 곧 연락드릴 예정입니다.</div></div>`;
+    msg.innerHTML=`<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:1.25rem"><div style="font-size:22px;margin-bottom:8px">✅</div><div style="font-size:17px;font-weight:500;color:#4ade80;margin-bottom:6px">전송 완료!</div><div style="font-size:15px;color:var(--text2);line-height:1.7"><strong style="color:var(--text)">${name}</strong>님의 검사 결과가 전문가에게 전달되었습니다.<br>입력하신 번호 <strong style="color:var(--text)">${phone}</strong>로 곧 연락드릴 예정입니다.</div></div>`;
     document.getElementById('inputName').disabled=true;
     document.getElementById('inputPhone').disabled=true;
   }).catch(err=>{

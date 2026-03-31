@@ -21,16 +21,16 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 #intro{align-items:center;justify-content:center;padding:2.5rem 1.5rem}
 .intro-inner{max-width:500px;width:100%;animation:fadeUp 0.8s ease both;text-align:center}
 .stress-emblem{width:88px;height:88px;border-radius:50%;margin:0 auto 1.5rem;background:linear-gradient(135deg,#ef4444,#f97316);display:flex;align-items:center;justify-content:center;box-shadow:0 0 36px rgba(239,68,68,0.35);font-size:36px}
-.intro-heading{font-family:'Noto Serif KR',serif;font-size:28px;font-weight:700;line-height:1.3;margin-bottom:.5rem}
+.intro-heading{font-family:'Noto Serif KR',serif;font-size:32px;font-weight:700;line-height:1.3;margin-bottom:.5rem}
 .intro-heading em{font-style:normal;background:linear-gradient(135deg,#ef4444,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.intro-sub{font-size:14px;color:var(--text2);margin-bottom:1.5rem;line-height:1.75}
+.intro-sub{font-size:16px;color:var(--text2);margin-bottom:1.5rem;line-height:1.75}
 .area-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.75rem}
 .area-chip{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;text-align:left}
 .area-chip-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
-.area-chip-name{font-size:13px;font-weight:500;color:var(--text)}
+.area-chip-name{font-size:15px;font-weight:500;color:var(--text)}
 .area-chip-desc{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4}
 .info-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem 1.5rem;margin-bottom:1.75rem;text-align:left}
-.info-card p{font-size:13px;color:var(--text2);line-height:1.85}
+.info-card p{font-size:15px;color:var(--text2);line-height:1.85}
 .info-card strong{color:var(--text);font-weight:500}
 .start-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 42px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 36px rgba(239,68,68,0.3);transition:transform .2s,box-shadow .2s}
 .start-btn:hover{transform:translateY(-2px);box-shadow:0 0 52px rgba(239,68,68,0.45)}
@@ -39,22 +39,22 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .quiz-header{position:sticky;top:0;z-index:10;background:rgba(8,8,15,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:1rem 1.5rem}
 .quiz-header-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
 .q-area-badge{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;white-space:nowrap}
-.q-counter{font-size:13px;color:var(--text3);margin-left:auto;white-space:nowrap}
+.q-counter{font-size:15px;color:var(--text3);margin-left:auto;white-space:nowrap}
 .prog-track{flex:1;height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#ef4444,#f97316);transition:width .4s ease;width:0%}
 .quiz-body{flex:1;padding:1.5rem 1.5rem 0;max-width:640px;margin:0 auto;width:100%}
 .q-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:.85rem;animation:cardIn .3s ease both}
-.q-num{font-size:11px;color:var(--text3);margin-bottom:6px;letter-spacing:.06em}
-.q-text{font-size:15px;color:var(--text);line-height:1.65;margin-bottom:1.1rem}
+.q-num{font-size:13px;color:var(--text3);margin-bottom:6px;letter-spacing:.06em}
+.q-text{font-size:17px;color:var(--text);line-height:1.7;margin-bottom:1.1rem}
 .scale-row{display:flex;gap:5px}
 .scale-btn{flex:1;padding:10px 3px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s;text-align:center;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px}
-.scale-btn .sn{font-size:15px;font-weight:700;color:var(--text2)}
-.scale-btn .sl{font-size:9px;white-space:pre-line;line-height:1.3}
+.scale-btn .sn{font-size:17px;font-weight:700;color:var(--text2)}
+.scale-btn .sl{font-size:11px;white-space:pre-line;line-height:1.3}
 .scale-btn:hover{border-color:var(--border2);color:var(--text)}
 .scale-btn.sel{border-width:2px;background:rgba(239,68,68,0.13);border-color:#ef4444;color:#ef4444}
 .scale-btn.sel .sn{color:#ef4444}
 .submit-wrap{padding:1.5rem;max-width:640px;margin:0 auto;width:100%}
-.submit-btn{width:100%;padding:14px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 28px rgba(239,68,68,.3);transition:transform .2s,box-shadow .2s;display:none}
+.submit-btn{width:100%;padding:16px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 28px rgba(239,68,68,.3);transition:transform .2s,box-shadow .2s;display:none}
 .submit-btn:hover{transform:translateY(-2px)}
 
 /* ── RESULT (form only) ── */
@@ -225,26 +225,26 @@ function showResult(){
         <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#f97316);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 0 32px rgba(239,68,68,0.4)">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div style="font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px">검사가 완료되었습니다!</div>
-        <div style="font-size:14px;color:var(--text2);line-height:1.75">이름과 전화번호를 입력하시면<br>전문가가 결과를 분석하여 직접 연락드립니다.</div>
+        <div style="font-family:'Noto Serif KR',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px">검사가 완료되었습니다!</div>
+        <div style="font-size:16px;color:var(--text2);line-height:1.75">이름과 전화번호를 입력하시면<br>전문가가 결과를 분석하여 직접 연락드립니다.</div>
       </div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem">
         <div style="margin-bottom:1rem">
-          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">이름 *</label>
+          <label style="display:block;font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px">이름 *</label>
           <input id="inputName" type="text" placeholder="홍길동" maxlength="20"
-            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:border-color 0.15s"
             onfocus="this.style.borderColor='rgba(239,68,68,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
         </div>
         <div style="margin-bottom:1.25rem">
-          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">전화번호 *</label>
+          <label style="display:block;font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px">전화번호 *</label>
           <input id="inputPhone" type="tel" placeholder="010-0000-0000" maxlength="20"
-            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:border-color 0.15s"
             onfocus="this.style.borderColor='rgba(239,68,68,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
         </div>
         <!-- 개인정보 동의 -->
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.04em">개인정보 수집 및 이용 동의</div>
-          <div style="font-size:11px;color:var(--text3);line-height:1.8;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.04em">개인정보 수집 및 이용 동의</div>
+          <div style="font-size:13px;color:var(--text3);line-height:1.8;margin-bottom:10px">
             · <b style="color:var(--text2)">수집 항목:</b> 이름, 전화번호<br>
             · <b style="color:var(--text2)">수집 목적:</b> 스트레스 검사 결과 분석 및 전문가 상담 연락<br>
             · <b style="color:var(--text2)">보유 기간:</b> 상담 완료 후 즉시 파기<br>
@@ -253,18 +253,18 @@ function showResult(){
           </div>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
             <input type="checkbox" id="privacyCheck" style="width:16px;height:16px;accent-color:#ef4444;cursor:pointer;flex-shrink:0">
-            <span style="font-size:12px;color:var(--text2)">개인정보 수집 및 이용에 <b style="color:var(--text)">동의합니다</b> <span style="color:#f43f5e">*</span></span>
+            <span style="font-size:14px;color:var(--text2)">개인정보 수집 및 이용에 <b style="color:var(--text)">동의합니다</b> <span style="color:#f43f5e">*</span></span>
           </label>
         </div>
         <button id="sendBtn" onclick="sendEmail()"
-          style="width:100%;padding:13px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(239,68,68,0.3);transition:transform 0.2s"
+          style="width:100%;padding:15px;border-radius:999px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-size:17px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(239,68,68,0.3);transition:transform 0.2s"
           onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           📧 결과 분석 요청하기
         </button>
         <div id="sendMsg" style="display:none;text-align:center;margin-top:1rem;font-size:13px;line-height:1.7"></div>
       </div>
       <div style="text-align:center;margin-top:1.5rem">
-        <button onclick="restart()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit">← 처음으로 돌아가기</button>
+        <button onclick="restart()" style="background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;font-family:inherit">← 처음으로 돌아가기</button>
       </div>
     </div>
   `;
@@ -418,8 +418,8 @@ function sendEmail(){
     msg.style.display='block';
     msg.innerHTML=`<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:1.25rem">
       <div style="font-size:22px;margin-bottom:8px">✅</div>
-      <div style="font-size:15px;font-weight:500;color:#4ade80;margin-bottom:6px">전송 완료!</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.7">
+      <div style="font-size:17px;font-weight:500;color:#4ade80;margin-bottom:6px">전송 완료!</div>
+      <div style="font-size:15px;color:var(--text2);line-height:1.7">
         <strong style="color:var(--text)">${name}</strong>님의 검사 결과가 전문가에게 전달되었습니다.<br>
         입력하신 번호 <strong style="color:var(--text)">${phone}</strong>로 곧 연락드릴 예정입니다.
       </div>

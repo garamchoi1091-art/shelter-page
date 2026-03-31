@@ -415,10 +415,10 @@
     <div class="logo-mark">MBTI</div>
     <div class="intro-title">성격유형 간략 검사</div>
     <div class="intro-desc">
-      <span>12문항</span>으로 당신의 MBTI 유형을 파악합니다.<br><br>
+      <span>20문항</span>으로 당신의 MBTI 유형을 파악합니다.<br><br>
       각 질문에서 <span>더 자연스럽게 느껴지는 쪽</span>을 선택하세요.
       정답은 없으며, 평소 자신의 모습을 기준으로 답해주세요.<br><br>
-      소요시간: <span>약 2~3분</span>
+      소요시간: <span>약 4~5분</span>
     </div>
     <button class="start-btn" onclick="startQuiz()">
       검사 시작하기
@@ -431,7 +431,7 @@
 <div id="quiz-screen" class="screen">
   <div class="quiz-header">
     <div class="quiz-header-inner">
-      <span class="q-counter" id="qCounter">0 / 12</span>
+      <span class="q-counter" id="qCounter">0 / 20</span>
       <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
     </div>
   </div>
@@ -456,18 +456,33 @@
 
 <script>
 const Qs = [
+  /* E / I — 5문항 */
   { dim:'EI', section:'E / I', q:'주말에 에너지를 회복하는 방식은?', a:'사람들과 만나거나 활동적인 모임에 나간다', b:'혼자 조용히 쉬거나 소수와 조용히 시간을 보낸다' },
   { dim:'EI', q:'새로운 사람을 만날 때 나는?', a:'먼저 다가가서 말을 건네는 편이다', b:'상대방이 먼저 다가오길 기다리는 편이다' },
   { dim:'EI', q:'무언가 고민이 생기면?', a:'누군가에게 이야기하며 생각을 정리한다', b:'혼자 깊이 생각한 뒤 정리되면 이야기한다' },
+  { dim:'EI', q:'모임이나 파티가 끝난 후 나는?', a:'더 활기차고 기분이 좋아진다', b:'피곤하고 혼자만의 시간이 필요하다' },
+  { dim:'EI', q:'일할 때 선호하는 환경은?', a:'사람들과 함께 대화하며 협력하는 환경', b:'조용한 공간에서 혼자 집중하는 환경' },
+
+  /* S / N — 5문항 */
   { dim:'SN', section:'S / N', q:'새 프로젝트를 시작할 때 먼저 생각하는 것은?', a:'구체적인 단계와 실행 가능한 계획', b:'전체적인 방향성과 가능성, 큰 그림' },
   { dim:'SN', q:'정보를 받아들일 때 더 신뢰하는 것은?', a:'직접 경험하거나 확인된 구체적 사실', b:'패턴, 직감, 개념 간의 연결' },
   { dim:'SN', q:'대화할 때 더 끌리는 주제는?', a:'실제 있었던 일, 현실적이고 실용적인 정보', b:'개념, 미래, 가능성에 관한 추상적 이야기' },
+  { dim:'SN', q:'문제를 해결할 때 나는?', a:'검증된 방법과 경험을 기반으로 접근한다', b:'새로운 아이디어와 창의적인 방법을 먼저 시도한다' },
+  { dim:'SN', q:'책이나 영화를 선택할 때?', a:'현실적이고 실제 이야기를 담은 것을 선호한다', b:'상상력을 자극하는 SF·판타지 같은 것을 선호한다' },
+
+  /* T / F — 5문항 */
   { dim:'TF', section:'T / F', q:'친구가 어려운 결정을 물어볼 때 나는?', a:'논리적으로 장단점을 분석해서 조언한다', b:'감정을 먼저 공감하고 함께 고민한다' },
   { dim:'TF', q:'갈등 상황에서 더 중요하게 여기는 것은?', a:'옳고 그름, 공정한 원칙과 논리', b:'관계 유지와 상대방의 감정 배려' },
   { dim:'TF', q:'칭찬을 받을 때 더 의미 있게 느껴지는 말은?', a:'"네 분석이 정말 날카로웠어"', b:'"네 덕분에 분위기가 정말 좋아졌어"' },
+  { dim:'TF', q:'누군가 나에게 피드백을 줄 때?', a:'감정보다 내용의 논리적 타당성을 먼저 본다', b:'내용보다 전달 방식과 상대의 의도를 먼저 느낀다' },
+  { dim:'TF', q:'중요한 결정을 내릴 때 더 의존하는 것은?', a:'객관적 데이터와 논리적 분석', b:'직감과 관련된 사람들에게 미칠 영향' },
+
+  /* J / P — 5문항 */
   { dim:'JP', section:'J / P', q:'계획에 대한 나의 태도는?', a:'미리 세워두어야 마음이 편하다', b:'유동적으로 상황에 맞게 결정하는 게 편하다' },
   { dim:'JP', q:'마감이 다가올 때 나는?', a:'이미 완료했거나 여유 있게 진행 중이다', b:'마감 직전 집중력이 올라와서 처리한다' },
   { dim:'JP', q:'하루를 보내는 방식은?', a:'할 일 목록을 만들고 순서대로 처리한다', b:'그날그날 흐름에 따라 자연스럽게 움직인다' },
+  { dim:'JP', q:'여행을 갈 때 나는?', a:'일정표를 꼼꼼히 짜고 미리 예약해둔다', b:'대략적인 목적지만 정하고 즉흥적으로 움직인다' },
+  { dim:'JP', q:'일이 예상과 다르게 흘러갈 때?', a:'불편하고 다시 계획을 세우고 싶다', b:'오히려 흥미롭고 유연하게 적응한다' },
 ];
 
 const TYPE_INFO = {
@@ -538,10 +553,10 @@ function pick(i, ch) {
   btns[0].className = 'opt' + (ch==='a' ? ' sel-a' : '');
   btns[1].className = 'opt' + (ch==='b' ? ' sel-b' : '');
   const count = Object.keys(answers).length;
-  document.getElementById('qCounter').textContent = count + ' / 12';
-  document.getElementById('progFill').style.width = (count / 12 * 100) + '%';
+  document.getElementById('qCounter').textContent = count + ' / 20';
+  document.getElementById('progFill').style.width = (count / 20 * 100) + '%';
   const sb = document.getElementById('submitBtn');
-  sb.style.display = count === 12 ? 'block' : 'none';
+  sb.style.display = count === 20 ? 'block' : 'none';
 }
 
 function showResult() {
@@ -563,7 +578,7 @@ function showResult() {
         <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 0 32px rgba(124,58,237,0.4)">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
-        <div style="font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:var(--text);margin-bottom:8px">검사가 완료되었습니다!</div>
+        <div style="font-family:'Noto Serif KR',serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:8px">검사가 완료되었습니다!</div>
         <div style="font-size:14px;color:var(--text2);line-height:1.75">
           이름과 전화번호를 입력하시면<br>
           전문가가 결과를 분석하여 직접 연락드립니다.
@@ -572,22 +587,22 @@ function showResult() {
 
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem">
         <div style="margin-bottom:1rem">
-          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">이름 *</label>
+          <label style="display:block;font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px">이름 *</label>
           <input id="inputName" type="text" placeholder="홍길동" maxlength="20"
-            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:border-color 0.15s"
             onfocus="this.style.borderColor='rgba(124,58,237,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
         </div>
         <div style="margin-bottom:1.25rem">
-          <label style="display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">전화번호 *</label>
+          <label style="display:block;font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px">전화번호 *</label>
           <input id="inputPhone" type="tel" placeholder="010-0000-0000" maxlength="20"
-            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color 0.15s"
+            style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:16px;font-family:inherit;outline:none;transition:border-color 0.15s"
             onfocus="this.style.borderColor='rgba(124,58,237,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.07)'">
         </div>
 
         <!-- 개인정보 동의 -->
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.25rem">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.04em">개인정보 수집 및 이용 동의</div>
-          <div style="font-size:11px;color:var(--text3);line-height:1.8;margin-bottom:10px">
+          <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:0.04em">개인정보 수집 및 이용 동의</div>
+          <div style="font-size:13px;color:var(--text3);line-height:1.8;margin-bottom:10px">
             · <b style="color:var(--text2)">수집 항목:</b> 이름, 전화번호<br>
             · <b style="color:var(--text2)">수집 목적:</b> 성격유형 검사 결과 분석 및 전문가 상담 연락<br>
             · <b style="color:var(--text2)">보유 기간:</b> 상담 완료 후 즉시 파기<br>
@@ -604,7 +619,7 @@ function showResult() {
         </div>
 
         <button id="sendBtn" onclick="sendEmail()"
-          style="width:100%;padding:13px;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(124,58,237,0.3);transition:transform 0.2s"
+          style="width:100%;padding:15px;border-radius:999px;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;font-size:17px;font-weight:500;border:none;cursor:pointer;font-family:inherit;box-shadow:0 0 24px rgba(124,58,237,0.3);transition:transform 0.2s"
           onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           📧 결과 분석 요청하기
         </button>
@@ -612,7 +627,7 @@ function showResult() {
       </div>
 
       <div style="text-align:center;margin-top:1.5rem">
-        <button onclick="restart()" style="background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;font-family:inherit">← 처음으로 돌아가기</button>
+        <button onclick="restart()" style="background:none;border:none;color:var(--text3);font-size:15px;cursor:pointer;font-family:inherit">← 처음으로 돌아가기</button>
       </div>
     </div>
   `;
@@ -624,7 +639,7 @@ function restart() {
   Object.keys(answers).forEach(k => delete answers[k]);
   show('quiz-screen');
   renderQuestions();
-  document.getElementById('qCounter').textContent = '0 / 12';
+  document.getElementById('qCounter').textContent = '0 / 20';
   document.getElementById('progFill').style.width = '0%';
   document.getElementById('submitBtn').style.display = 'none';
 }
@@ -645,10 +660,10 @@ function openReport(type) {
   const sc = { EI:[0,0], SN:[0,0], TF:[0,0], JP:[0,0] };
   Qs.forEach((q,i) => { const c = answers[i]; if(c) sc[q.dim][c==='a'?0:1]++; });
   const barVals = [
-    Math.round(sc.EI[0]/3*100),
-    Math.round(sc.SN[0]/3*100),
-    Math.round(sc.TF[0]/3*100),
-    Math.round(sc.JP[0]/3*100),
+    Math.round(sc.EI[0]/5*100),
+    Math.round(sc.SN[0]/5*100),
+    Math.round(sc.TF[0]/5*100),
+    Math.round(sc.JP[0]/5*100),
   ];
   const barColors = ['#7c3aed','#0d9488','#e11d48','#b45309'];
   const barLabels = [['E','I'],['S','N'],['T','F'],['J','P']];
@@ -733,7 +748,7 @@ function openReport(type) {
 
     <div class="rp-footer">
       <div class="rp-footer-note">
-        본 해석지는 12문항 간략 검사 결과로, 정확한 유형 파악은 공식 MBTI 검사를 권장합니다.<br>
+        본 해석지는 20문항 간략 검사 결과로, 정확한 유형 파악은 공식 MBTI 검사를 권장합니다.<br>
         MBTI® Myers-Briggs Type Indicator® — 참고용 비공식 해석지
       </div>
       <button class="rp-print-btn" onclick="window.print()">인쇄하기</button>
@@ -794,8 +809,8 @@ function sendEmail() {
   const sc = { EI:[0,0], SN:[0,0], TF:[0,0], JP:[0,0] };
   Qs.forEach((q,i) => { const c = answers[i]; if(c) sc[q.dim][c==='a'?0:1]++; });
   const barVals = [
-    Math.round(sc.EI[0]/3*100), Math.round(sc.SN[0]/3*100),
-    Math.round(sc.TF[0]/3*100), Math.round(sc.JP[0]/3*100),
+    Math.round(sc.EI[0]/5*100), Math.round(sc.SN[0]/5*100),
+    Math.round(sc.TF[0]/5*100), Math.round(sc.JP[0]/5*100),
   ];
   const barColors = ['#7c3aed','#0d9488','#e11d48','#b45309'];
   const barLabels = [['E','I'],['S','N'],['T','F'],['J','P']];
@@ -841,7 +856,7 @@ function sendEmail() {
       <tr><td style="font-size:13px;color:#555;padding:3px 0;width:80px">이름</td><td style="font-size:14px;font-weight:700;color:#1a1a1a;padding:3px 0">${name}</td></tr>
       <tr><td style="font-size:13px;color:#555;padding:3px 0">전화번호</td><td style="font-size:14px;font-weight:700;color:#1a1a1a;padding:3px 0">${phone}</td></tr>
       <tr><td style="font-size:13px;color:#555;padding:3px 0">검사일시</td><td style="font-size:13px;color:#666;padding:3px 0">${today} ${time}</td></tr>
-      <tr><td style="font-size:13px;color:#555;padding:3px 0">검사 종류</td><td style="font-size:13px;color:#666;padding:3px 0">MBTI 성격유형 검사 (12문항)</td></tr>
+      <tr><td style="font-size:13px;color:#555;padding:3px 0">검사 종류</td><td style="font-size:13px;color:#666;padding:3px 0">MBTI 성격유형 검사 (20문항)</td></tr>
     </table>
   </div>
 
@@ -916,7 +931,7 @@ function sendEmail() {
   </div>
 
   <div style="margin-top:20px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;line-height:1.55">
-    본 해석지는 12문항 간략 검사 결과입니다. 정확한 유형 파악은 공식 MBTI 검사를 권장합니다.
+    본 해석지는 20문항 간략 검사 결과입니다. 정확한 유형 파악은 공식 MBTI 검사를 권장합니다.
   </div>
 </div>`;
 
@@ -935,8 +950,8 @@ function sendEmail() {
     msg.style.display = 'block';
     msg.innerHTML = `<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:1.25rem">
       <div style="font-size:22px;margin-bottom:8px">✅</div>
-      <div style="font-size:15px;font-weight:500;color:#4ade80;margin-bottom:6px">전송 완료!</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.7">
+      <div style="font-size:17px;font-weight:500;color:#4ade80;margin-bottom:6px">전송 완료!</div>
+      <div style="font-size:15px;color:var(--text2);line-height:1.7">
         <strong style="color:var(--text)">${name}</strong>님의 검사 결과가 전문가에게 전달되었습니다.<br>
         입력하신 번호 <strong style="color:var(--text)">${phone}</strong>로 곧 연락드릴 예정입니다.
       </div>
