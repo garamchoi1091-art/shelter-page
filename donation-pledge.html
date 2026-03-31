@@ -1088,21 +1088,40 @@
     else el.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
   }
 
-  // ── 카카오 인앱 브라우저 감지 ───────────────────────────
-  function isKakao() {
+  // ── 카카오 인앱 브라우저 → 외부 브라우저 자동 이동 ──────
+  (function() {
     var ua = navigator.userAgent.toLowerCase();
-    return ua.indexOf('kakaotalk') > -1 || ua.indexOf('kakao') > -1;
-  }
-  function openExternal() {
+    var isKakao = ua.indexOf('kakaotalk') > -1 || ua.indexOf('kakao') > -1;
+
+    if (!isKakao) return;
+
     var url = location.href;
-    location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
-    setTimeout(function() { location.href = url; }, 1000);
-  }
+    var isIOS = /iphone|ipad|ipod/.test(ua);
+    var isAndroid = ua.indexOf('android') > -1;
+
+    if (isIOS) {
+      // iOS: Safari로 열기
+      location.href = url;
+      setTimeout(function() {
+        // fallback: 현재 URL 그대로 다시 로드 (Safari가 열림)
+        window.open(url, '_blank');
+      }, 300);
+    } else if (isAndroid) {
+      // Android: Chrome Intent로 열기
+      var intent = 'intent://' + url.replace(/^https?:\/\//, '') +
+        '#Intent;scheme=https;action=android.intent.action.VIEW;' +
+        'package=com.android.chrome;end';
+      location.href = intent;
+      setTimeout(function() {
+        // fallback: 삼성 브라우저 등
+        location.href = url;
+      }, 1500);
+    }
+  })();
+
   function closeKakaoModal() {
-    document.getElementById('kakaoModal').classList.remove('show');
-  }
-  if (isKakao()) {
-    document.getElementById('kakaoModal').classList.add('show');
+    var m = document.getElementById('kakaoModal');
+    if (m) m.classList.remove('show');
   }
 
   // ── 초기화 ────────────────────────────────────────────
