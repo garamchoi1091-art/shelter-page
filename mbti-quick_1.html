@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나는 어떤 사람일까? — 성격유형 검사</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+  :root {
+    --mint:#4ECDC4; --coral:#FF6B6B; --navy:#1a2744;
+    --soft-bg:#f0f4ff; --card-bg:#ffffff; --text:#2d3561;
+    --subtext:#7b8ab8; --shadow:0 8px 32px rgba(78,205,196,0.15);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--soft-bg);min-height:100vh;color:var(--text);overflow-x:hidden;}
+  body::before{content:'';position:fixed;top:-120px;right:-120px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(78,205,196,0.18) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;bottom:-100px;left:-100px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,107,0.12) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .container{max-width:680px;margin:0 auto;padding:32px 20px 60px;position:relative;z-index:1;}
+  .header{text-align:center;margin-bottom:36px;}
+  .header-badge{display:inline-block;background:linear-gradient(135deg,var(--mint),#36b3aa);color:white;font-size:12px;font-weight:700;letter-spacing:2px;padding:6px 18px;border-radius:20px;margin-bottom:16px;text-transform:uppercase;}
+  .header h1{font-family:'Nanum Gothic',sans-serif;font-size:clamp(26px,6vw,36px);font-weight:800;color:var(--navy);line-height:1.3;margin-bottom:12px;}
+  .header h1 span{color:var(--coral);}
+  .header p{font-size:15px;color:var(--subtext);line-height:1.6;}
+  .progress-wrap{background:white;border-radius:12px;padding:16px 20px;margin-bottom:28px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;}
+  .progress-bar-bg{flex:1;height:10px;background:#e8edf8;border-radius:10px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--mint),#36b3aa);border-radius:10px;transition:width 0.4s cubic-bezier(.4,0,.2,1);width:0%;}
+  .progress-text{font-size:13px;font-weight:700;color:var(--mint);white-space:nowrap;min-width:56px;text-align:right;}
+  .question-card{background:var(--card-bg);border-radius:24px;padding:32px 28px;margin-bottom:20px;box-shadow:var(--shadow);display:none;animation:slideUp 0.35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
+  .question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--mint),var(--coral));}
+  .question-card.active{display:block;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  .q-number{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:linear-gradient(135deg,var(--mint),#36b3aa);color:white;border-radius:12px;font-size:14px;font-weight:700;margin-bottom:16px;}
+  .q-dimension{font-size:11px;font-weight:700;color:var(--subtext);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+  .q-text{font-size:clamp(16px,4vw,20px);font-weight:700;color:var(--navy);line-height:1.5;margin-bottom:28px;}
+  .choices{display:flex;flex-direction:column;gap:12px;}
+  .choice-btn{width:100%;padding:18px 22px;border:2px solid #e8edf8;border-radius:16px;background:#f8faff;color:var(--text);font-size:15px;font-family:'Noto Sans KR',sans-serif;font-weight:500;cursor:pointer;text-align:left;transition:all 0.2s;line-height:1.5;display:flex;align-items:flex-start;gap:12px;}
+  .choice-label{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;border-radius:8px;background:#e8edf8;font-size:12px;font-weight:700;color:var(--subtext);transition:all 0.2s;flex-shrink:0;margin-top:1px;}
+  .choice-btn:hover{border-color:var(--mint);background:rgba(78,205,196,0.08);color:var(--navy);transform:translateX(4px);}
+  .choice-btn:hover .choice-label{background:var(--mint);color:white;}
+  .choice-btn.selected-a{border-color:var(--mint);background:rgba(78,205,196,0.12);color:var(--navy);}
+  .choice-btn.selected-a .choice-label{background:var(--mint);color:white;}
+  .choice-btn.selected-b{border-color:var(--coral);background:rgba(255,107,107,0.10);color:var(--navy);}
+  .choice-btn.selected-b .choice-label{background:var(--coral);color:white;}
+  .info-card{background:var(--card-bg);border-radius:24px;padding:32px 28px;box-shadow:var(--shadow);display:none;animation:slideUp 0.35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
+  .info-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--coral),var(--mint));}
+  .info-card.active{display:block;}
+  .info-card h2{font-family:'Nanum Gothic',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+  .info-card p{font-size:14px;color:var(--subtext);margin-bottom:28px;line-height:1.6;}
+  .form-group{margin-bottom:18px;}
+  .form-group label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;}
+  .form-group label span{color:var(--coral);}
+  .form-group input{width:100%;padding:16px 18px;border:2px solid #e8edf8;border-radius:14px;font-size:16px;font-family:'Noto Sans KR',sans-serif;color:var(--text);background:#f8faff;transition:border-color 0.2s;outline:none;}
+  .form-group input:focus{border-color:var(--mint);background:white;}
+  .form-group input::placeholder{color:#b0bcd8;}
+  .submit-btn{width:100%;padding:20px;background:linear-gradient(135deg,var(--mint),#36b3aa);color:white;font-size:17px;font-weight:700;font-family:'Nanum Gothic',sans-serif;border:none;border-radius:16px;cursor:pointer;transition:all 0.3s;margin-top:8px;box-shadow:0 6px 24px rgba(78,205,196,0.35);}
+  .submit-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 32px rgba(78,205,196,0.45);}
+  .submit-btn:disabled{opacity:0.7;cursor:not-allowed;}
+  .done-card{background:var(--card-bg);border-radius:24px;padding:48px 28px;box-shadow:var(--shadow);text-align:center;display:none;animation:slideUp 0.35s cubic-bezier(.4,0,.2,1);}
+  .done-card.active{display:block;}
+  .done-icon{font-size:64px;margin-bottom:20px;display:block;animation:pop 0.5s cubic-bezier(.4,0,.2,1);}
+  @keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.15);}100%{transform:scale(1);}}
+  .done-card h2{font-family:'Nanum Gothic',sans-serif;font-size:26px;font-weight:800;color:var(--navy);margin-bottom:12px;}
+  .done-card p{font-size:15px;color:var(--subtext);line-height:1.7;}
+  .footer-note{text-align:center;font-size:12px;color:var(--subtext);margin-top:32px;line-height:1.6;}
+  @media(max-width:480px){.container{padding:20px 14px 40px;}.question-card,.info-card{padding:24px 18px;}.choice-btn{font-size:14px;padding:15px 16px;}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-badge">MBTI 성격유형</div>
+    <h1>나는 어떤 사람<span>일까?</span></h1>
+    <p>12가지 질문으로 알아보는 나의 성격유형<br>솔직하게 답할수록 더 잘 맞아요 😊</p>
+  </div>
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">0 / 12</div>
+  </div>
+  <div id="questionArea"></div>
+  <div class="info-card" id="infoCard">
+    <h2>거의 다 왔어요! 🎉</h2>
+    <p>결과를 보내기 위해 이름과 전화번호를 입력해 주세요.<br>입력한 정보는 상담 연락에만 사용됩니다.</p>
+    <div class="form-group">
+      <label>이름 <span>*</span></label>
+      <input type="text" id="userName" placeholder="이름을 입력하세요" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>전화번호 <span>*</span></label>
+      <input type="tel" id="userPhone" placeholder="010-0000-0000" maxlength="13">
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitResult()">결과 제출하기</button>
+  </div>
+  <div class="done-card" id="doneCard">
+    <span class="done-icon">✨</span>
+    <h2>검사 완료!</h2>
+    <p>수고했어요 😊<br>선생님이 결과를 확인하고<br>곧 연락을 드릴 거예요!</p>
+  </div>
+  <div class="footer-note" id="footerNote">
+    * 이 검사는 전문 상담을 위한 약식 검사입니다.<br>결과는 상담자에게만 전달됩니다.
+  </div>
+</div>
+<script>
+(function(){emailjs.init({publicKey:'P8vFkuGZ8hRJeeJb5'});})();
+
+const questions=[
+  // E/I — 3문항
+  {dim:'EI',label:'E vs I',text:'쉬는 시간에 나는 보통…',
+   a:{text:'친구들과 어울리거나 신나게 이야기한다',type:'E'},
+   b:{text:'혼자 조용히 쉬거나 내 생각을 정리한다',type:'I'}},
+  {dim:'EI',label:'E vs I',text:'처음 만나는 친구에게 나는…',
+   a:{text:'먼저 말을 걸고 친해지려고 한다',type:'E'},
+   b:{text:'상대방이 먼저 다가올 때까지 기다린다',type:'I'}},
+  {dim:'EI',label:'E vs I',text:'발표나 모둠 토론을 할 때 나는…',
+   a:{text:'적극적으로 먼저 의견을 말하는 편이다',type:'E'},
+   b:{text:'생각이 있어도 한 번 더 고민한 뒤 말한다',type:'I'}},
+  // S/N — 3문항
+  {dim:'SN',label:'S vs N',text:'새로운 내용을 배울 때 나는…',
+   a:{text:'실제 예시나 경험담을 들어야 이해가 잘 된다',type:'S'},
+   b:{text:'전체 흐름과 핵심 아이디어를 먼저 파악하고 싶다',type:'N'}},
+  {dim:'SN',label:'S vs N',text:'내가 더 재미있는 활동은…',
+   a:{text:'직접 만들거나 해보는 실험·만들기 활동',type:'S'},
+   b:{text:'새 아이디어나 이야기를 상상하고 창작하는 활동',type:'N'}},
+  {dim:'SN',label:'S vs N',text:'나중에 어른이 된 내 모습을 상상하면…',
+   a:{text:'지금 상황에서 현실적으로 뭘 할 수 있을지 생각한다',type:'S'},
+   b:{text:'꿈꾸는 멋진 미래가 생생하게 머릿속에 그려진다',type:'N'}},
+  // T/F — 3문항
+  {dim:'TF',label:'T vs F',text:'친구가 힘든 일이 있다고 말할 때 나는…',
+   a:{text:'어떻게 해결할지 방법을 같이 생각해 준다',type:'T'},
+   b:{text:'친구 옆에 있어주고 마음이 어떤지 먼저 들어준다',type:'F'}},
+  {dim:'TF',label:'T vs F',text:'팀 프로젝트에서 의견이 충돌할 때 나는…',
+   a:{text:'논리적으로 따져서 더 좋은 방법을 선택한다',type:'T'},
+   b:{text:'모두가 불편하지 않도록 서로 맞춰가는 편이다',type:'F'}},
+  {dim:'TF',label:'T vs F',text:'누군가가 내 행동을 지적할 때 나는…',
+   a:{text:'지적이 맞는지 틀린지 사실을 먼저 따져보고 싶다',type:'T'},
+   b:{text:'상대방이 왜 그런 말을 했는지 감정이 먼저 신경 쓰인다',type:'F'}},
+  // J/P — 3문항
+  {dim:'JP',label:'J vs P',text:'숙제나 과제를 할 때 나는…',
+   a:{text:'미리 계획을 세우고 차근차근 끝낸다',type:'J'},
+   b:{text:'생각날 때 하거나 마감 직전에 한 번에 끝낸다',type:'P'}},
+  {dim:'JP',label:'J vs P',text:'주말 계획을 세울 때 나는…',
+   a:{text:'뭘 할지 미리 정해두는 게 더 좋다',type:'J'},
+   b:{text:'그날 기분에 따라 자유롭게 결정하고 싶다',type:'P'}},
+  {dim:'JP',label:'J vs P',text:'새로운 상황이 생겼을 때 나는…',
+   a:{text:'먼저 규칙이나 순서를 정하고 싶다',type:'J'},
+   b:{text:'일단 뛰어들어서 상황에 맞게 해결한다',type:'P'}}
+];
+
+const TOTAL=12;
+let answers={};
+
+function init(){
+  const area=document.getElementById('questionArea');
+  questions.forEach((q,i)=>{
+    const card=document.createElement('div');
+    card.className='question-card'+(i===0?' active':'');
+    card.id='q'+i;
+    card.innerHTML=`
+      <div class="q-number">${i+1}</div>
+      <div class="q-dimension">${q.label}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="choices">
+        <button class="choice-btn" onclick="selectAnswer(${i},'${q.a.type}','a',this)">
+          <span class="choice-label">A</span><span>${q.a.text}</span>
+        </button>
+        <button class="choice-btn" onclick="selectAnswer(${i},'${q.b.type}','b',this)">
+          <span class="choice-label">B</span><span>${q.b.text}</span>
+        </button>
+      </div>`;
+    area.appendChild(card);
+  });
+  document.getElementById('progressWrap').style.display='flex';
+  updateProgress();
+}
+
+function updateProgress(){
+  const n=Object.keys(answers).length;
+  document.getElementById('progressFill').style.width=(n/TOTAL*100)+'%';
+  document.getElementById('progressText').textContent=n+' / '+TOTAL;
+}
+
+function selectAnswer(qi,type,side,btn){
+  const card=document.getElementById('q'+qi);
+  card.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('selected-a','selected-b'));
+  btn.classList.add(side==='a'?'selected-a':'selected-b');
+  answers[qi]=type;
+  updateProgress();
+  setTimeout(()=>{
+    card.classList.remove('active');
+    const next=qi+1;
+    if(next<TOTAL){
+      document.getElementById('q'+next).classList.add('active');
+    } else {
+      document.getElementById('infoCard').classList.add('active');
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+  },420);
+}
+
+function calcMBTI(){
+  const c={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+  Object.values(answers).forEach(t=>c[t]++);
+  return{
+    type:(c.E>=c.I?'E':'I')+(c.S>=c.N?'S':'N')+(c.T>=c.F?'T':'F')+(c.J>=c.P?'J':'P'),
+    scores:c
+  };
+}
+
+const mbtiDesc={
+  ISTJ:'성실하고 책임감 강한 계획형',ISFJ:'따뜻하고 배려심 깊은 보호자형',
+  INFJ:'통찰력 있는 조용한 이상주의자',INTJ:'독립적이고 전략적인 설계자형',
+  ISTP:'논리적이고 상황 적응력 높은 탐구형',ISFP:'감성적이고 조화를 추구하는 예술가형',
+  INFP:'이상을 꿈꾸는 따뜻한 중재자형',INTP:'논리와 아이디어를 즐기는 사색가형',
+  ESTP:'현실적이고 활동적인 모험가형',ESFP:'밝고 자유로운 에너지의 활동가형',
+  ENFP:'열정적이고 상상력 풍부한 탐험가형',ENTP:'창의적이고 도전을 즐기는 발명가형',
+  ESTJ:'체계적이고 실용적인 리더형',ESFJ:'친화력 좋고 협동적인 사교형',
+  ENFJ:'따뜻하고 사람을 이끄는 선생님형',ENTJ:'자신감 있고 목표 지향적인 지휘관형'
+};
+
+function bar(a,b,lA,lB,color){
+  const t=a+b||1,p=Math.round(a/t*100);
+  return`<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;"><tr>
+    <td width="18" style="font-size:13px;font-weight:800;color:${color};">${lA}</td>
+    <td style="padding:0 8px;"><table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td width="${p}%" style="height:10px;background:${color};border-radius:5px 0 0 5px;"></td>
+      <td style="height:10px;background:#eef2ff;border-radius:0 5px 5px 0;"></td>
+    </tr></table></td>
+    <td width="18" style="font-size:13px;font-weight:800;color:#ccc;">${lB}</td>
+    <td width="60" style="font-size:12px;color:#999;text-align:right;">${a} : ${b}</td>
+  </tr></table>`;
+}
+
+function buildEmailHTML(name,phone,mbtiType,scores){
+  const desc=mbtiDesc[mbtiType]||'';
+  const dimColor={EI:'#4ECDC4',SN:'#45B7D1',TF:'#FF6B6B',JP:'#FFA07A'};
+  let rows='';
+  questions.forEach((q,i)=>{
+    const ans=answers[i];
+    const chosen=(ans===q.a.type)?q.a.text:q.b.text;
+    const dc=dimColor[q.dim];
+    rows+=`<tr>
+      <td style="padding:10px 8px;border-bottom:1px solid #eef2ff;font-size:13px;color:#888;text-align:center;font-weight:700;">${i+1}</td>
+      <td style="padding:10px 8px;border-bottom:1px solid #eef2ff;font-size:12px;color:#aaa;text-align:center;font-weight:700;">${q.dim}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eef2ff;font-size:13px;color:#333;">${q.text}</td>
+      <td style="padding:10px 8px;border-bottom:1px solid #eef2ff;font-size:14px;font-weight:800;text-align:center;color:${dc};">${ans}</td>
+      <td style="padding:10px 12px;border-bottom:1px solid #eef2ff;font-size:13px;color:#555;">${chosen}</td>
+    </tr>`;
+  });
+  return`<table width="100%" cellpadding="0" cellspacing="0" style="font-family:sans-serif;max-width:620px;margin:0 auto;">
+  <tr><td style="background:linear-gradient(135deg,#4ECDC4,#36b3aa);padding:32px 28px;border-radius:16px 16px 0 0;text-align:center;">
+    <p style="color:rgba(255,255,255,0.8);font-size:13px;margin:0 0 8px;">약식 MBTI 검사 결과 (12문항)</p>
+    <h1 style="color:white;font-size:30px;margin:0;">${name} 님</h1>
+    <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:8px 0 0;">📱 ${phone}</p>
+  </td></tr>
+  <tr><td style="background:white;padding:28px 28px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+      <td style="text-align:center;padding:24px;background:#f0fdf9;border-radius:14px;border:2px solid #4ECDC4;">
+        <p style="margin:0 0 4px;font-size:13px;color:#aaa;">검사 결과</p>
+        <p style="margin:0;font-size:52px;font-weight:900;color:#1a2744;letter-spacing:4px;">${mbtiType}</p>
+        <p style="margin:8px 0 0;font-size:14px;color:#4ECDC4;font-weight:700;">${desc}</p>
+      </td>
+    </tr></table>
+  </td></tr>
+  <tr><td style="background:white;padding:20px 28px 0;">
+    <p style="font-size:13px;font-weight:700;color:#1a2744;margin:0 0 14px;">📊 차원별 점수 (각 3문항)</p>
+    ${bar(scores.E,scores.I,'E','I','#4ECDC4')}
+    ${bar(scores.S,scores.N,'S','N','#45B7D1')}
+    ${bar(scores.T,scores.F,'T','F','#FF6B6B')}
+    ${bar(scores.J,scores.P,'J','P','#FFA07A')}
+  </td></tr>
+  <tr><td style="background:white;padding:20px 28px 28px;">
+    <p style="font-size:13px;font-weight:700;color:#1a2744;margin:0 0 12px;">📋 문항별 응답 상세</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eef2ff;border-radius:10px;overflow:hidden;">
+      <tr style="background:#f0f4ff;">
+        <th style="padding:10px 8px;font-size:11px;color:#aaa;font-weight:700;text-align:center;">No</th>
+        <th style="padding:10px 8px;font-size:11px;color:#aaa;font-weight:700;text-align:center;">차원</th>
+        <th style="padding:10px 12px;font-size:11px;color:#aaa;font-weight:700;text-align:left;">질문</th>
+        <th style="padding:10px 8px;font-size:11px;color:#aaa;font-weight:700;text-align:center;">응답</th>
+        <th style="padding:10px 12px;font-size:11px;color:#aaa;font-weight:700;text-align:left;">선택 내용</th>
+      </tr>
+      ${rows}
+    </table>
+  </td></tr>
+  <tr><td style="background:#f0f4ff;padding:16px 28px;border-radius:0 0 16px 16px;text-align:center;">
+    <p style="margin:0;font-size:12px;color:#aaa;">약식 MBTI 검사 · 아웃리치용</p>
+  </td></tr>
+</table>`;
+}
+
+async function submitResult(){
+  const name=document.getElementById('userName').value.trim();
+  const phone=document.getElementById('userPhone').value.trim();
+  if(!name){alert('이름을 입력해 주세요.');return;}
+  if(!phone){alert('전화번호를 입력해 주세요.');return;}
+  if(Object.keys(answers).length<TOTAL){alert('모든 질문에 답해 주세요!');return;}
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='제출 중...';
+  const{type,scores}=calcMBTI();
+  try{
+    await emailjs.send('service_gdmifpq','template_7xgkqur',{
+      subject:`[약식MBTI] ${name} · ${phone} — ${type}`,
+      html_content:buildEmailHTML(name,phone,type,scores)
+    });
+    document.getElementById('infoCard').classList.remove('active');
+    document.getElementById('doneCard').classList.add('active');
+    document.getElementById('progressWrap').style.display='none';
+    document.getElementById('footerNote').style.display='none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    console.error(err);
+    alert('전송 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    btn.disabled=false;btn.textContent='결과 제출하기';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  init();
+  document.getElementById('userPhone').addEventListener('input',function(){
+    let v=this.value.replace(/\D/g,'');
+    if(v.length<=3)this.value=v;
+    else if(v.length<=7)this.value=v.slice(0,3)+'-'+v.slice(3);
+    else this.value=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+  });
+});
+</script>
+</body>
+</html>
