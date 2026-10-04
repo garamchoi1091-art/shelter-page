@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1B4332">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>하루 루틴 체크</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark:  #1B4332;
+    --green-mid:   #2D6A4F;
+    --green-soft:  #52B788;
+    --green-pale:  #D8F3DC;
+    --accent:      #F4845F;
+    --text:        #1A2E1F;
+    --line:        rgba(255,255,255,0.08);
+    --dim:         rgba(255,255,255,0.45);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--green-dark);
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .bg {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 10%, rgba(82,183,136,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 90% 90%, rgba(244,132,95,0.07) 0%, transparent 60%);
+  }
+  .container {
+    position: relative; z-index: 1;
+    max-width: 480px; margin: 0 auto;
+    padding: 32px 16px 100px;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* 헤더 */
+  .header { text-align: center; margin-bottom: 20px; }
+  .header-tag {
+    font-size: 12px; font-weight: 700; letter-spacing: 3px;
+    color: var(--green-soft); margin-bottom: 6px;
+  }
+  .header h1 { font-family: 'Noto Serif KR', serif; font-size: 24px; }
+
+  /* 날짜 이동 */
+  .date-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+    border-radius: 16px; padding: 8px; margin-bottom: 16px;
+  }
+  .date-nav button {
+    width: 40px; height: 40px; border-radius: 12px; font-size: 20px;
+    color: var(--dim);
+  }
+  .date-nav button:disabled { opacity: 0.25; cursor: default; }
+  .date-nav button:not(:disabled):active { background: rgba(255,255,255,0.08); }
+  .date-label { text-align: center; }
+  .date-label strong { display: block; font-size: 16px; }
+  .date-label span { font-size: 12px; color: var(--dim); }
+
+  /* 진행률 */
+  .progress-card {
+    display: flex; align-items: center; gap: 18px;
+    background: linear-gradient(135deg, rgba(45,106,79,0.6), rgba(82,183,136,0.25));
+    border: 1px solid rgba(82,183,136,0.3);
+    border-radius: 20px; padding: 18px 20px; margin-bottom: 16px;
+  }
+  .ring { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring-track { stroke: rgba(255,255,255,0.1); }
+  .ring-fill { stroke: var(--green-soft); stroke-linecap: round; transition: stroke-dashoffset .5s ease; }
+  .ring.done .ring-fill { stroke: var(--accent); }
+  .ring-text {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+  }
+  .progress-info strong { display: block; font-size: 17px; margin-bottom: 4px; }
+  .progress-info p { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; }
+  .streak { color: var(--accent); font-weight: 700; }
+
+  /* 주간 */
+  .week {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+    margin-bottom: 24px;
+  }
+  .day {
+    text-align: center; padding: 8px 0; border-radius: 12px;
+    background: rgba(255,255,255,0.04); border: 1px solid transparent;
+  }
+  .day.sel { border-color: var(--green-soft); }
+  .day-name { font-size: 11px; color: var(--dim); }
+  .day-dot {
+    width: 26px; height: 26px; margin: 6px auto 2px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .day-num { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+  /* 루틴 그룹 */
+  .slot { margin-bottom: 20px; }
+  .slot-label {
+    font-size: 13px; font-weight: 700; color: var(--green-soft);
+    letter-spacing: 1px; margin-bottom: 8px; display: flex; justify-content: space-between;
+  }
+  .slot-label span { color: var(--dim); font-weight: 400; }
+  .item {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+    border-radius: 14px; padding: 13px 14px; margin-bottom: 8px;
+    transition: background .2s, border-color .2s;
+  }
+  .item:active { transform: scale(0.99); }
+  .item-emoji { font-size: 22px; width: 28px; text-align: center; }
+  .item-name { flex: 1; font-size: 15px; }
+  .item-time { font-size: 12px; color: var(--dim); }
+  .check {
+    width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+    transition: all .2s;
+  }
+  .item.on { background: rgba(82,183,136,0.14); border-color: rgba(82,183,136,0.35); }
+  .item.on .item-name { color: rgba(255,255,255,0.55); text-decoration: line-through; }
+  .item.on .check { background: var(--green-soft); border-color: var(--green-soft); color: var(--green-dark); }
+  .edit-mode .item .check { display: none; }
+  .del {
+    display: none; width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(244,132,95,0.15); color: var(--accent); font-size: 16px;
+  }
+  .edit-mode .del { display: block; }
+
+  .empty { text-align: center; color: var(--dim); font-size: 14px; padding: 32px 0; line-height: 1.8; }
+
+  /* 하단 버튼 */
+  .actions {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--green-dark) 60%, transparent);
+  }
+  .actions-inner { max-width: 448px; margin: 0 auto; display: flex; gap: 8px; }
+  .btn {
+    flex: 1; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 500;
+    background: rgba(255,255,255,0.08); border: 1px solid var(--line);
+  }
+  .btn-primary { background: var(--green-soft); color: var(--green-dark); font-weight: 700; border: none; }
+
+  /* 모달 */
+  .modal-bg {
+    position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.55);
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    width: 100%; max-width: 480px; background: #224d3a;
+    border-radius: 22px 22px 0 0; padding: 22px 16px calc(22px + env(safe-area-inset-bottom));
+  }
+  .modal h2 { font-size: 17px; margin-bottom: 16px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 6px; }
+  .field input {
+    width: 100%; padding: 12px 14px; border-radius: 12px; font-size: 15px; font-family: inherit;
+    background: rgba(255,255,255,0.08); border: 1px solid var(--line); color: #fff;
+  }
+  .field input:focus { outline: none; border-color: var(--green-soft); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 8px 12px; border-radius: 10px; font-size: 14px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--line);
+  }
+  .chip.sel { background: var(--green-soft); color: var(--green-dark); font-weight: 700; border-color: var(--green-soft); }
+  .emoji-chip { font-size: 20px; padding: 6px 8px; }
+  .modal .actions-inner { margin-top: 18px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
+    background: var(--accent); color: #fff; font-size: 14px; font-weight: 500;
+    padding: 10px 18px; border-radius: 20px; opacity: 0; transition: all .3s; z-index: 20;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .footer { text-align: center; font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 28px; line-height: 1.8; }
+  .footer a { color: rgba(255,255,255,0.45); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="container" id="app">
+
+  <div class="header">
+    <div class="header-tag">DAILY ROUTINE</div>
+    <h1>하루 루틴 체크</h1>
+  </div>
+
+  <div class="date-nav">
+    <button id="prev" aria-label="이전 날">‹</button>
+    <div class="date-label"><strong id="dateMain"></strong><span id="dateSub"></span></div>
+    <button id="next" aria-label="다음 날">›</button>
+  </div>
+
+  <div class="progress-card">
+    <div class="ring" id="ring">
+      <svg width="84" height="84" viewBox="0 0 84 84">
+        <circle class="ring-track" cx="42" cy="42" r="36" fill="none" stroke-width="8"/>
+        <circle class="ring-fill" id="ringFill" cx="42" cy="42" r="36" fill="none" stroke-width="8"
+                stroke-dasharray="226.2" stroke-dashoffset="226.2"/>
+      </svg>
+      <div class="ring-text" id="ringText">0%</div>
+    </div>
+    <div class="progress-info">
+      <strong id="progTitle"></strong>
+      <p id="progDesc"></p>
+    </div>
+  </div>
+
+  <div class="week" id="week"></div>
+
+  <div id="list"></div>
+
+  <div class="footer">
+    기록은 이 기기(브라우저)에만 저장돼요.<br>
+    군산남자단기청소년쉼터 · <a href="tel:063-471-1091">063-471-1091</a>
+  </div>
+</div>
+
+<div class="actions">
+  <div class="actions-inner">
+    <button class="btn" id="editBtn">✏️ 편집</button>
+    <button class="btn btn-primary" id="addBtn">＋ 루틴 추가</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2>새 루틴 추가</h2>
+    <div class="field">
+      <label for="nameInput">이름</label>
+      <input id="nameInput" maxlength="20" placeholder="예) 물 한 잔 마시기">
+    </div>
+    <div class="field">
+      <label for="timeInput">시간 (선택)</label>
+      <input id="timeInput" type="time">
+    </div>
+    <div class="field">
+      <label>시간대</label>
+      <div class="chips" id="slotChips"></div>
+    </div>
+    <div class="field">
+      <label>아이콘</label>
+      <div class="chips" id="emojiChips"></div>
+    </div>
+    <div class="actions-inner">
+      <button class="btn" id="cancelBtn">취소</button>
+      <button class="btn btn-primary" id="saveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY = 'routine-check-v1';
+const SLOTS = [
+  { id: 'morning', label: '🌅 아침' },
+  { id: 'day',     label: '☀️ 낮' },
+  { id: 'evening', label: '🌙 저녁' },
+];
+const EMOJIS = ['⏰','🪥','🍚','🛏️','📚','🏃','💧','💊','🧹','🚿','📝','📵','🙏','🎵','😴','✅'];
+const DEFAULTS = [
+  { name: '제시간에 일어나기', emoji: '⏰', slot: 'morning', time: '07:00' },
+  { name: '세수·양치하기',     emoji: '🪥', slot: 'morning', time: '' },
+  { name: '아침 먹기',         emoji: '🍚', slot: 'morning', time: '' },
+  { name: '이불 정리하기',     emoji: '🛏️', slot: 'morning', time: '' },
+  { name: '학교·프로그램 참여', emoji: '📚', slot: 'day',     time: '' },
+  { name: '30분 몸 움직이기',  emoji: '🏃', slot: 'day',     time: '' },
+  { name: '물 충분히 마시기',  emoji: '💧', slot: 'day',     time: '' },
+  { name: '샤워하기',          emoji: '🚿', slot: 'evening', time: '' },
+  { name: '오늘 하루 한 줄 일기', emoji: '📝', slot: 'evening', time: '' },
+  { name: '잠들기 전 폰 내려놓기', emoji: '📵', slot: 'evening', time: '23:00' },
+];
+const DOW = ['일','월','화','수','목','금','토'];
+
+const $ = id => document.getElementById(id);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const keyOf = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+
+/* ---------- 저장소 ---------- */
+// routines: [{id,name,emoji,slot,time,created}], log: { 'YYYY-MM-DD': [id, ...] }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.routines)) return s;
+  } catch (e) {}
+  const created = keyOf(today());
+  return { routines: DEFAULTS.map(r => ({ ...r, id: uid(), created })), log: {} };
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+let state = load();
+let cur = today();
+let editMode = false;
+let form = { slot: 'morning', emoji: EMOJIS[0] };
+
+/* 그 날짜에 존재했던 루틴만 집계 (나중에 추가한 루틴이 과거 기록을 깎지 않도록) */
+const routinesOn = k => state.routines.filter(r => !r.created || r.created <= k);
+function rateOn(d) {
+  const k = keyOf(d), rs = routinesOn(k);
+  if (!rs.length) return null;
+  const done = new Set(state.log[k] || []);
+  return rs.filter(r => done.has(r.id)).length / rs.length;
+}
+function streak() {
+  // 오늘 미완료라도 어제까지 이어졌으면 유지
+  let d = today(), n = 0;
+  if (rateOn(d) !== 1) d = addDays(d, -1);
+  while (rateOn(d) === 1) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+/* ---------- 렌더 ---------- */
+function render() {
+  const k = keyOf(cur), t = today();
+  const isToday = cur.getTime() === t.getTime();
+  const diff = Math.round((t - cur) / 864e5);
+
+  $('dateMain').textContent = isToday ? '오늘' : diff === 1 ? '어제' : `${diff}일 전`;
+  $('dateSub').textContent = `${cur.getMonth()+1}월 ${cur.getDate()}일 (${DOW[cur.getDay()]})`;
+  $('next').disabled = isToday;
+  $('prev').disabled = diff >= 29;
+
+  // 진행률
+  const rs = routinesOn(k), done = new Set(state.log[k] || []);
+  const cnt = rs.filter(r => done.has(r.id)).length;
+  const pct = rs.length ? Math.round(cnt / rs.length * 100) : 0;
+  $('ringFill').style.strokeDashoffset = 226.2 * (1 - pct / 100);
+  $('ringText').textContent = pct + '%';
+  $('ring').classList.toggle('done', pct === 100);
+  const s = streak();
+  $('progTitle').textContent =
+    pct === 100 ? '모두 해냈어요! 🎉' : pct >= 50 ? '절반 넘었어요, 좋아요!' : cnt ? '좋은 시작이에요' : '하나씩 시작해 볼까요?';
+  $('progDesc').innerHTML = `${rs.length}개 중 ${cnt}개 완료` +
+    (s ? `<br><span class="streak">🔥 ${s}일 연속 달성</span>` : '');
+
+  // 주간 (선택한 날 기준 최근 7일)
+  const end = diff < 3 ? t : addDays(cur, 3);
+  $('week').innerHTML = Array.from({ length: 7 }, (_, i) => {
+    const d = addDays(end, i - 6), r = rateOn(d), future = d > t;
+    const mark = !future && r === 1 ? '✓' : '';
+    const bg = future || r === null ? '' :
+      r === 1 ? 'background:var(--green-soft);color:var(--green-dark);font-weight:700' :
+      r > 0 ? `background:rgba(82,183,136,${0.15 + r * 0.45})` : '';
+    return `<div class="day ${d.getTime() === cur.getTime() ? 'sel' : ''}" ${future ? '' : `data-d="${keyOf(d)}"`} style="${future ? 'opacity:.3' : 'cursor:pointer'}">
+      <div class="day-name">${DOW[d.getDay()]}</div>
+      <div class="day-dot" style="${bg}">${mark}</div>
+      <div class="day-num">${d.getDate()}</div></div>`;
+  }).join('');
+
+  // 목록
+  const list = $('list');
+  list.className = editMode ? 'edit-mode' : '';
+  if (!rs.length) {
+    list.innerHTML = state.routines.length
+      ? `<div class="empty">이 날은 아직 루틴을 시작하기 전이에요.</div>`
+      : `<div class="empty">아직 루틴이 없어요.<br>아래 <b>＋ 루틴 추가</b>로 만들어 보세요.</div>`;
+    return;
+  }
+  list.innerHTML = SLOTS.map(sl => {
+    const items = rs.filter(r => r.slot === sl.id)
+      .sort((a, b) => (a.time || '99') < (b.time || '99') ? -1 : 1);
+    if (!items.length) return '';
+    const c = items.filter(r => done.has(r.id)).length;
+    return `<div class="slot"><div class="slot-label">${sl.label}<span>${c}/${items.length}</span></div>` +
+      items.map(r => `<button class="item ${done.has(r.id) ? 'on' : ''}" data-id="${r.id}">
+        <span class="item-emoji">${r.emoji}</span>
+        <span class="item-name">${esc(r.name)}</span>
+        ${r.time ? `<span class="item-time">${r.time}</span>` : ''}
+        <span class="check">${done.has(r.id) ? '✓' : ''}</span>
+        <span class="del" data-del="${r.id}" role="button" aria-label="삭제">✕</span>
+      </button>`).join('') + '</div>';
+  }).join('');
+}
+const esc = s => s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+/* ---------- 이벤트 ---------- */
+$('list').addEventListener('click', e => {
+  const del = e.target.closest('[data-del]');
+  if (del) {
+    const r = state.routines.find(x => x.id === del.dataset.del);
+    if (r && confirm(`'${r.name}' 루틴을 삭제할까요?`)) {
+      state.routines = state.routines.filter(x => x.id !== r.id);
+      for (const k in state.log) state.log[k] = state.log[k].filter(id => id !== r.id);
+      save(); render();
+    }
+    return;
+  }
+  const item = e.target.closest('.item');
+  if (!item || editMode) return;
+  const k = keyOf(cur), id = item.dataset.id;
+  const arr = state.log[k] || (state.log[k] = []);
+  const i = arr.indexOf(id);
+  i >= 0 ? arr.splice(i, 1) : arr.push(id);
+  if (!arr.length) delete state.log[k];
+  save();
+  const before = $('ring').classList.contains('done');
+  render();
+  if (!before && $('ring').classList.contains('done')) toast('🎉 오늘 루틴 완료! 수고했어요');
+});
+
+$('week').addEventListener('click', e => {
+  const d = e.target.closest('[data-d]');
+  if (!d) return;
+  const [y, m, dd] = d.dataset.d.split('-').map(Number);
+  cur = new Date(y, m - 1, dd); render();
+});
+$('prev').onclick = () => { cur = addDays(cur, -1); render(); };
+$('next').onclick = () => { cur = addDays(cur, 1); render(); };
+
+$('editBtn').onclick = () => {
+  editMode = !editMode;
+  $('editBtn').textContent = editMode ? '✔ 완료' : '✏️ 편집';
+  render();
+};
+
+function chips() {
+  $('slotChips').innerHTML = SLOTS.map(s =>
+    `<button class="chip ${form.slot === s.id ? 'sel' : ''}" data-slot="${s.id}">${s.label}</button>`).join('');
+  $('emojiChips').innerHTML = EMOJIS.map(em =>
+    `<button class="chip emoji-chip ${form.emoji === em ? 'sel' : ''}" data-emoji="${em}">${em}</button>`).join('');
+}
+$('slotChips').onclick = e => { const b = e.target.closest('[data-slot]'); if (b) { form.slot = b.dataset.slot; chips(); } };
+$('emojiChips').onclick = e => { const b = e.target.closest('[data-emoji]'); if (b) { form.emoji = b.dataset.emoji; chips(); } };
+
+function openModal() {
+  const h = new Date().getHours();
+  form = { slot: h < 11 ? 'morning' : h < 18 ? 'day' : 'evening', emoji: EMOJIS[EMOJIS.length - 1] };
+  $('nameInput').value = ''; $('timeInput').value = '';
+  chips(); $('modalBg').classList.add('open');
+  setTimeout(() => $('nameInput').focus(), 50);
+}
+const closeModal = () => $('modalBg').classList.remove('open');
+$('addBtn').onclick = openModal;
+$('cancelBtn').onclick = closeModal;
+$('modalBg').onclick = e => { if (e.target === $('modalBg')) closeModal(); };
+$('saveBtn').onclick = () => {
+  const name = $('nameInput').value.trim();
+  if (!name) { $('nameInput').focus(); return; }
+  // 생성일을 보고 있는 날짜로 두어 과거 날짜에 추가해도 바로 체크할 수 있게
+  const created = [keyOf(cur), keyOf(today())].sort()[0];
+  state.routines.push({ id: uid(), name, emoji: form.emoji, slot: form.slot, time: $('timeInput').value, created });
+  save(); closeModal(); render(); toast('루틴을 추가했어요');
+};
+$('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('saveBtn').click(); });
+
+// 자정이 지나면 오늘 날짜로 갱신
+let lastDay = keyOf(today());
+setInterval(() => {
+  const k = keyOf(today());
+  if (k !== lastDay) { if (keyOf(cur) === lastDay) cur = today(); lastDay = k; render(); }
+}, 60000);
+
+render();
+</script>
+</body>
+</html>
